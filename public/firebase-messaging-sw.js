@@ -3,13 +3,13 @@ importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compa
 // // Initialize the Firebase app in the service worker by passing the generated config 
 
 const firebaseConfig = {
-  apiKey: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  authDomain: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  projectId: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  storageBucket: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  messagingSenderId: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  appId: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  measurementId: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  apiKey: "AIzaSyBjM2yx21lCFq8mRyUSo9fyT55AncuO-MA",
+  authDomain: "pharm-news.firebaseapp.com",
+  projectId: "pharm-news",
+  storageBucket: "pharm-news.appspot.com",
+  messagingSenderId: "774331368225",
+  appId: "1:774331368225:web:9c2a194b158ac7032f3460",
+  measurementId: "G-254Q43Q2S5"
 }
 
 
