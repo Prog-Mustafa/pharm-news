@@ -1,151 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-    <loc>https://news-ssr-lilac.vercel.app/404</loc>
+    <loc>https://front.iraqipharm.com/404</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/</loc>
+    <loc>https://front.iraqipharm.com/</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/loading</loc>
+    <loc>https://front.iraqipharm.com/loading</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/rss</loc>
+    <loc>https://front.iraqipharm.com/rss</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/[slug]</loc>
+    <loc>https://front.iraqipharm.com/[slug]</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/all-breaking-news</loc>
+    <loc>https://front.iraqipharm.com/all-breaking-news</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/all-categories</loc>
+    <loc>https://front.iraqipharm.com/all-categories</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/bookmark</loc>
+    <loc>https://front.iraqipharm.com/bookmark</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/breaking-news/[slug]</loc>
+    <loc>https://front.iraqipharm.com/breaking-news/[slug]</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/categories-news/[slug]</loc>
+    <loc>https://front.iraqipharm.com/categories-news/[slug]</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/create-news</loc>
+    <loc>https://front.iraqipharm.com/create-news</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/edit-news</loc>
+    <loc>https://front.iraqipharm.com/edit-news</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/live-news</loc>
+    <loc>https://front.iraqipharm.com/live-news</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/manage-news</loc>
+    <loc>https://front.iraqipharm.com/manage-news</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/more-pages/[slug]</loc>
+    <loc>https://front.iraqipharm.com/more-pages/[slug]</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/more-pages</loc>
+    <loc>https://front.iraqipharm.com/more-pages</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/news/[slug]</loc>
+    <loc>https://front.iraqipharm.com/news/[slug]</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/news-notification</loc>
+    <loc>https://front.iraqipharm.com/news-notification</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/personal-notification</loc>
+    <loc>https://front.iraqipharm.com/personal-notification</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/profile-update</loc>
+    <loc>https://front.iraqipharm.com/profile-update</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/tag/[slug]</loc>
+    <loc>https://front.iraqipharm.com/tag/[slug]</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/user-based-categories</loc>
+    <loc>https://front.iraqipharm.com/user-based-categories</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/video-news-view/[slug]</loc>
+    <loc>https://front.iraqipharm.com/video-news-view/[slug]</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/view-all/[slug]</loc>
+    <loc>https://front.iraqipharm.com/view-all/[slug]</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://news-ssr-lilac.vercel.app/categories-news/sub-category/[slug]</loc>
+    <loc>https://front.iraqipharm.com/categories-news/sub-category/[slug]</loc>
     <lastmod>2024-06-13T11:35:13.819Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
