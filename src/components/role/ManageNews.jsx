@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { deleteNewsApi } from '../../store/actions/campaign'
 import { useSelector } from 'react-redux'
 import BreadcrumbNav from '../breadcrumb/BreadcrumbNav'
-import { translate } from '../../utils'
+import { placeholderImage, translate } from '../../utils'
 import Skeleton from 'react-loading-skeleton'
 import { useRouter } from 'next/navigation'
 import { loadManageToEdit } from '../../store/reducers/createNewsReducer'
@@ -16,6 +16,7 @@ import Layout from '../layout/Layout'
 import { Modal } from 'antd';
 import NoDataFound from '../noDataFound/NoDataFound'
 import Link from 'next/link'
+import Card from '../skeletons/Card'
 const { confirm } = Modal;
 
 const ManageNews = () => {
@@ -44,6 +45,7 @@ const ManageNews = () => {
   // react query
   const { isLoading, isError, data, error, status } = useQuery({
     queryKey: ['getnews', currentLanguage],
+    staleTime: 0,
     queryFn: getNews,
 
   })
@@ -77,7 +79,7 @@ const ManageNews = () => {
             deleteNewsApi({
               news_id: data.id,
               onSuccess: res => {
-                toast.success(res.message)
+                toast.success('News deleted Successfully')
                 const updatedData = Data.filter(item => item.id !== data.id)
                 setData(updatedData)
               },
@@ -85,7 +87,7 @@ const ManageNews = () => {
                 toast.error(err.message)
               }
             })
-            setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
+            setTimeout(Math.random() > 0.5 ? resolve : reject, 1000); 
           });
         } catch (e) {
           console.log('Oops errors!');
@@ -98,14 +100,18 @@ const ManageNews = () => {
 
   return (
     <Layout>
-      <BreadcrumbNav SecondElement={translate('manageNewsLbl')}  />
+      <BreadcrumbNav SecondElement={translate('manageNewsLbl')} />
 
       <div className='manage_news bg-white py-5'>
         <div className='container'>
           <div className='row'>
             {isLoading ? (
-              <div>
-                <Skeleton height={200} count={3} />
+              <div className='row'>
+                {[...Array(3)].map((_, index) => (
+                  <div className='col-xl-4 col-md-6 col-12' key={index}>
+                    <Card />
+                  </div>
+                ))}
               </div>
             ) : (
               <>
@@ -115,7 +121,7 @@ const ManageNews = () => {
                       <div className='manage-data'>
                         <Link
                           href={{ pathname: `/news/${element.slug}`, query: { language_id: element.language_id } }}
-                          as={`/news/${element.slug}`}
+                          // as={`/news/${element.slug}`}
                         >
                           <div className='manage-card'>
 
@@ -123,6 +129,7 @@ const ManageNews = () => {
                               <img
                                 src={element.image}
                                 alt='manage news'
+                                onError={placeholderImage}
                               />
                             </div>
 
@@ -133,7 +140,7 @@ const ManageNews = () => {
                             </div>
                             <div className='manage-date'>
                               <p>
-                                {new Date(element.date).toLocaleTimeString([], {
+                                {new Date(element.created_at).toLocaleTimeString([], {
                                   hour: 'numeric',
                                   minute: 'numeric',
                                   second: 'numeric',
@@ -146,7 +153,7 @@ const ManageNews = () => {
                         <div className='manage-right'>
                           <Link
                             href={{ pathname: `/news/${element.slug}`, query: { language_id: element.language_id } }}
-                            as={`/news/${element.slug}`}
+                            // as={`/news/${element.slug}`}
                           >
                             <div className='manage-title'>
                               <p

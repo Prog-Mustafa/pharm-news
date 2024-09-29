@@ -9,7 +9,6 @@ import { useSelector } from 'react-redux'
 import { getNewsApi } from 'src/hooks/newsApi'
 
 const RelatedNewsSection = props => {
-  const catid = props.Cid
   let { id: language_id } = getLanguage()
   const location = useSelector(locationData)
   const storedLatitude = location && location.lat
@@ -21,13 +20,13 @@ const RelatedNewsSection = props => {
       const { data } = await getNewsApi.getNews({
         offset: '0',
         limit: '10',
-        category_id: catid,
+        category_id: props.categoryId,
         language_id: language_id,
         latitude: storedLatitude,
         longitude: storedLongitude
       })
       // Filter out elements with the same id as props.Cid
-      const filteredData = data.data.filter(element => element.slug !== props.Nid)
+      const filteredData = data.data.filter(element => element.slug !== props.newsSlug)
       filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
       return filteredData
     } catch (error) {
@@ -37,7 +36,7 @@ const RelatedNewsSection = props => {
 
   // react query
   const { isLoading, data: Data } = useQuery({
-    queryKey: ['realated-news-section', catid, props.Nid, location],
+    queryKey: ['realated-news-section', props.catSlug, props.newsSlug, location],
     queryFn: getNewsByCategoryApi
   })
 
@@ -58,10 +57,10 @@ const RelatedNewsSection = props => {
             </h4>
           </div>
           {Data &&
-            Data.map(element => (
+            Data?.slice(0, 4).map(element => (
               <Link id='Link-all'
                 href={{ pathname: `/news/${element.slug}`, query: { language_id: element.language_id } }}
-                as={`/news/${element.slug}`}
+                // as={`/news/${element.slug}`}
                 key={element.id}>
                 <div id='RNews-card' className='card' onClick={() => scrollToTop()}>
                   <img id='RNews-image' src={element.image} className='card-img-top' alt={element.title} onError={placeholderImage} />
@@ -77,6 +76,16 @@ const RelatedNewsSection = props => {
                 </div>
               </Link>
             ))}
+
+          {
+            Data.length > 4 &&
+            <div className='mb-4'>
+              <Link href={`/view-all/related-news/${props.catSlug}`}>
+                <button className='loadMoreBtn commonBtn'>  {translate('viewall')}</button>
+              </Link>
+            </div>
+          }
+
         </div>
       ) : null}
     </div>

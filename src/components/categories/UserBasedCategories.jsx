@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import SwitchButton from 'bootstrap-switch-button-react'
 import { categoriesApi, getuserbyidApi, setusercategoriesApi } from '../../store/actions/campaign'
-import { translate } from '../../utils'
+import { placeholderImage, translate } from '../../utils'
 import { useSelector } from 'react-redux'
 import { selectCurrentLanguage } from '../../store/reducers/languageReducer'
 import toast from 'react-hot-toast'
@@ -13,6 +13,7 @@ import { categoriesCacheData } from 'src/store/reducers/CatNavReducers'
 import { getUserManageData, loadGetUserByIdApi, selectUser } from 'src/store/reducers/userReducer'
 import Loader from './Loader'
 import { useRouter } from 'next/router'
+import AllCategorySkeleton from '../skeletons/AllCategorySkeleton'
 
 const UserBasedCategories = () => {
   const [data, setData] = useState([])
@@ -66,7 +67,7 @@ const UserBasedCategories = () => {
 
   useEffect(() => {
     setCatLength(categories?.length)
-    console.log(categories.length, 'cat-length')
+    // console.log(categories.length, 'cat-length')
   }, [catLength, currentLanguage])
 
 
@@ -156,7 +157,7 @@ const UserBasedCategories = () => {
             <div className='row'>
               {[...Array(3)].map((_, index) => (
                 <div className='col-md-4 col-12' key={index}>
-                  <Card isLoading={true} />
+                  <AllCategorySkeleton />
                 </div>
               ))}
             </div>
@@ -169,7 +170,7 @@ const UserBasedCategories = () => {
                       <div className='manage_card'>
                         <div className='inner_manage'>
                           <div className='manage_image'>
-                            <img src={element.image} alt={element.category_name} />
+                            <img src={element.image} alt={element.category_name} onError={placeholderImage} />
                           </div>
                           <div className='manage_title'>
                             <p className='mb-0'>{element.category_name}</p>
@@ -191,7 +192,7 @@ const UserBasedCategories = () => {
                   ))
                   : null}
               </div>
-              <button className='finalsumit_btn mb-5' onClick={e => finalSubmit(e)}>
+              <button className='finalsumit_btn mb-5 commonBtn' onClick={e => finalSubmit(e)}>
                 {
                   loader ? <Loader /> : translate('saveLbl')
                 }

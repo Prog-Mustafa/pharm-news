@@ -4,7 +4,7 @@ import photo from '../../../public/assets/images/Login.jpg'
 import React, { useEffect, useState } from 'react'
 //otp
 import OTPInput from 'react-otp-input'
-import { translate } from '../../utils'
+import { placeholderImage, translate } from '../../utils'
 
 //firebase
 import FirebaseData from '../../utils/Firebase'
@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { locationData } from 'src/store/reducers/settingsReducer'
 import { registerFcmTokenApi } from 'src/store/actions/campaign'
+import { themeSelector } from 'src/store/reducers/CheckThemeReducer'
 
 const OTPModal = props => {
   const [OTP, setOTP] = useState('') // eslint-disable-next-line
@@ -28,6 +29,8 @@ const OTPModal = props => {
   const navigate = useRouter()
 
   const settings = useSelector(settingsData)
+
+  const darkThemeMode = useSelector(themeSelector);
 
   const [resendTimer, setResendTimer] = useState(60);
 
@@ -58,16 +61,12 @@ const OTPModal = props => {
   const generateRecaptcha = () => {
     if (typeof window !== 'undefined') {
       if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(
-          'recaptcha-container',
-          {
-            size: 'invisible',
-            callback: response => {
-              // reCAPTCHA solved, allow signInWithPhoneNumber.
-            }
-          },
-          authentication
-        )
+        window.recaptchaVerifier = new RecaptchaVerifier(authentication, 'recaptcha-container', {
+          size: 'invisible',
+          callback: () => {
+            console.log('recaptcha resolved..')
+          }
+        });
       }
     }
   }
@@ -162,17 +161,20 @@ const OTPModal = props => {
         status: '1',
         fcm_id: location.fcmtoken,
         onSuccess: response => {
-          setTimeout(async () => {
-            await registerFcmTokenApi({
-              token: response.data.fcm_id,
-              latitude: storedLatitude,
-              longitude: storedLongitude,
-              onSuccess: async res => { },
-              onError: async err => {
-                console.log(err)
-              }
-            })
-          }, [1000])
+          if (response.data.fcm_id) {
+            setTimeout(async () => {
+              await registerFcmTokenApi({
+                token: response.data.fcm_id,
+                latitude: storedLatitude,
+                longitude: storedLongitude,
+                onSuccess: async res => { },
+                onError: async err => {
+                  console.log(err)
+                }
+              })
+            }, [1000])
+          }
+
           toast.success('Login Successfully')
           // console.log('phoneRes', response.data)
           if (response.data.is_login === '0') {
@@ -223,9 +225,11 @@ const OTPModal = props => {
         >
           <div className='ModalWrapper55' id='ModalWrapper'>
             <div style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px' }} id='login_img5'>
-              <img className='ModalImg5' src={photo.src} alt='otp modal image' />
+              <img className='ModalImg5' src={photo.src} alt='otp modal image' onError={placeholderImage} />
               <div className='logo-img-overlay'>
-                <img src={settings && settings?.web_setting?.web_header_logo} alt='logo image' id='logo5' />
+                <img src={settings && darkThemeMode ? settings?.web_setting?.dark_header_logo : settings?.web_setting?.light_header_logo} alt='logo image' id='logo5'
+                  onError={placeholderImage}
+                />
               </div>
             </div>
 

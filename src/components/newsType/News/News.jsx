@@ -1,27 +1,18 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Form from 'react-bootstrap/Form';
-import { AiOutlineLike, AiTwotoneLike, AiOutlineEye, AiFillLike } from 'react-icons/ai';
+import { AiOutlineLike, AiOutlineEye, AiFillLike } from 'react-icons/ai';
 import { BsBookmark, BsFillBookmarkFill, BsFillPlayFill } from 'react-icons/bs';
 import { FiCalendar } from 'react-icons/fi';
 import RelatedNewsSection from '../../relatedNews/RelatedNewsSection.jsx';
 import TagsSection from '../../tag/TagsSection.jsx';
-import CommentSection from '../../comment/CommentSection.jsx';
-import { BsLink45Deg } from "react-icons/bs";
 
 import BreadcrumbNav from '../../breadcrumb/BreadcrumbNav.jsx';
-import {
-  FacebookIcon,
-  WhatsappIcon,
-  TwitterShareButton,
-  WhatsappShareButton,
-  FacebookShareButton,
-  XIcon
-} from 'react-share';
+
 import SignInModal from '../../auth/SignInModal.jsx';
 import { setbookmarkApi, setlikedislikeApi } from '../../../store/actions/campaign.js';
 import { getLanguage, getUser } from '../../../utils/api.jsx';
-import { calculateReadTime, extractTextFromHTML, formatDate, isLogin, placeholderImage, translate, NoDataFound } from '../../../utils/index.jsx';
+import { calculateReadTime, extractTextFromHTML, isLogin, placeholderImage, translate, NoDataFound } from '../../../utils/index.jsx';
 import VideoPlayerModal from '../../videoplayer/VideoPlayerModal.jsx';
 import { selectCurrentLanguage } from '../../../store/reducers/languageReducer';
 import { useSelector } from 'react-redux';
@@ -37,11 +28,14 @@ import { useQuery } from '@tanstack/react-query';
 import { getNewsApi } from 'src/hooks/newsApi.jsx';
 import { getAdsSpaceNewsDetailsApi } from 'src/hooks/adSpaceApi';
 import Layout from 'src/components/layout/Layout.jsx';
-// import NoDataFound from 'src/components/noDataFound/NoDataFound';
 import toast from 'react-hot-toast';
 import CommentsView from 'src/components/comment/CommentsView.jsx';
 import Surveys from 'src/components/survey/Surveys.jsx';
 import AdSpaces from '../../view/adSpaces/AdSpaces.jsx';
+import WithoutSeoShare from 'src/components/view/SocialMediaShares/WithoutSeoShare.jsx';
+import SeoShare from 'src/components/view/SocialMediaShares/SeoShare.jsx';
+import { store } from 'src/store/store.js';
+import { SetSearchPopUp } from 'src/store/stateSlice/clickActionSlice.js';
 
 const News = () => {
   let user = getUser();
@@ -49,7 +43,7 @@ const News = () => {
   const userData = useSelector(selectUser);
   const SettingsData = useSelector(settingsData);
   const router = useRouter();
-  const currentUrL = `${process.env.NEXT_PUBLIC_WEB_URL}${router?.asPath}?language_id=${currentLanguage.id}`;
+  const currentUrL = `${process.env.NEXT_PUBLIC_WEB_URL}${router?.asPath}`;
 
   const decodedURL = decodeURI(currentUrL)
 
@@ -73,7 +67,9 @@ const News = () => {
   const [VideomodalShow, setVideoModalShow] = useState(false);
   const [typeUrl, setTypeUrl] = useState(null);
   const query = router.query;
-  const NewsId = query.slug;
+  const newsSlug = query.slug;
+
+
   // eslint-disable-next-line
   const [islogout, setIsLogout] = useState(false); // eslint-disable-next-line
   const [isloginloading, setisloginloading] = useState(true); // eslint-disable-next-line
@@ -81,6 +77,8 @@ const News = () => {
   const [viewerIsOpen, setViewerIsOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
   const [whatsappImageLoaded, setWhatsappImageLoaded] = useState(false);
+
+  const [newsViewsIncreament, setNewsViewsIncreament] = useState(false)
 
   // console.log(query, 'quryy')
 
@@ -90,7 +88,7 @@ const News = () => {
 
       try {
         const { data } = await getNewsApi.getNews({
-          slug: NewsId,
+          slug: newsSlug,
           language_id: query.language_id ? query.language_id : currentLanguage.id
         });
 
@@ -117,15 +115,26 @@ const News = () => {
 
   // api call
   const setNewsView = async () => {
-    if (!isLogin()) return false;
-    try {
-      const { data } = await getNewsApi.setNewsView({
-        news_id: NewsId,
-        language_id: '',
-      });
-      return data.data;
-    } catch (error) {
-      console.log(error);
+    if (isLogin() && Data && !newsViewsIncreament) {
+      // console.log('setNewsView called')
+      try {
+        const { data } = await getNewsApi.setNewsView({
+          news_id: Data[0]?.id,
+          language_id: '',
+        });
+        // console.log('newViewResponse =>', data.error)
+        if (data?.error === false) {
+          setNewsViewsIncreament(true)
+          // console.log('data.error =>', data.error)
+        }
+        else {
+          // console.log('newsView Err =>', data.error)
+
+        }
+        return data.data;
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -155,15 +164,15 @@ const News = () => {
     error,
     status
   } = useQuery({
-    queryKey: ['getNewsbyId', NewsId, currentLanguage.id],
+    queryKey: ['getNewsbyId', newsSlug, currentLanguage.id],
     queryFn: getNewsById,
 
   });
 
   const { } = useQuery({
-    queryKey: ['setNewsView', NewsId],
+    queryKey: ['setNewsView', Data],
     queryFn: setNewsView,
-    staleTime: 3000
+    staleTime: 0
   });
 
 
@@ -193,11 +202,11 @@ const News = () => {
   };
 
   // set bookmark
-  const setbookmarkData = async (newsid, status) => {
+  const setbookmarkData = async (id, status) => {
     if (user !== null) {
-      // console.log('newsid: ',newsid,'status:',status)
+      // console.log('id: ',id,'status:',status)
       setbookmarkApi({
-        news_id: newsid,
+        news_id: id,
         status: status,
         onStart: async response => {
           await refetch();
@@ -250,6 +259,23 @@ const News = () => {
     setViewerIsOpen(false);
   };
 
+  const closeSearchPopUp = () => {
+    store.dispatch(SetSearchPopUp(false))
+  }
+
+
+
+  useEffect(() => {
+    closeSearchPopUp()
+  }, [newsSlug])
+
+
+  useEffect(() => {
+    // console.log('newsViewsIncreament', newsViewsIncreament)
+  }, [newsViewsIncreament])
+
+
+
   return (
     <Layout>
       {isLoading ? (
@@ -277,7 +303,7 @@ const News = () => {
                   <div id='nv-Header' className=''>
                     <div id='nv-left-head'>
                       <p id='head-lables'>
-                        <FiCalendar size={18} id='head-logos' /> {new Date(Data && Data[0]?.date).toLocaleString('en-us', {
+                        <FiCalendar size={18} id='head-logos' /> {new Date(Data && Data[0]?.published_date).toLocaleString('en-us', {
                           day: 'numeric',
                           month: 'short',
                           year: 'numeric'
@@ -288,7 +314,7 @@ const News = () => {
                       </p>
 
                       <p id='head-lables' className='eye_icon'>
-                        <AiOutlineEye size={18} id='head-logos' /> {Data && Data[0]?.total_views}
+                        <AiOutlineEye size={18} id='head-logos' /> {newsViewsIncreament ? Data && Data[0]?.total_views + 1 : Data && Data[0]?.total_views}
                       </p>
                       <p id='head-lables' className='minute_Read'>
                         <BiTime size={18} id='head-logos' />
@@ -298,43 +324,12 @@ const News = () => {
                       </p>
                     </div>
                     {process.env.NEXT_PUBLIC_SEO === 'true' ? (
-                      <div id='nv-right-head'>
-                        <h6 id='nv-Share-Label'>{translate('shareLbl')}:</h6>
 
-                        <FacebookShareButton
-                          url={decodedURL}
-                          title={`${Data && Data[0]?.title} - ${SettingsData && SettingsData?.web_setting?.web_name}`}
-                          hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`}
-                        >
-                          <FacebookIcon size={40} round />
-                        </FacebookShareButton>
-                        <WhatsappShareButton
-                          url={decodedURL}
-                          title={`${Data && Data[0]?.title} - ${SettingsData && SettingsData?.web_setting?.web_name}`}
-                          hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`}
-                          beforeOnClick={() => setWhatsappImageLoaded(false)}
-                        >
-                          <WhatsappIcon size={40} round onLoad={() => setWhatsappImageLoaded(true)} />
-                        </WhatsappShareButton>
-                        <TwitterShareButton
-                          url={decodedURL}
-                          title={`${Data && Data[0]?.title} - ${SettingsData && SettingsData?.web_setting?.web_name}`}
-                          hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`}
-                        >
-                          <XIcon size={40} round />
-                        </TwitterShareButton>
-                        <button onClick={handleCopyUrl} className='copy_url'>
-                          <BsLink45Deg size={30} />
-                        </button>
-                      </div>
+                      <SeoShare url={decodedURL} title={`${Data && Data[0]?.title} - ${SettingsData && SettingsData?.web_setting?.web_name}`} hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`} handleCopyUrl={handleCopyUrl} setWhatsappImageLoaded={setWhatsappImageLoaded} />
 
                     ) :
-                      <div id='nv-right-head'>
-                        <h6 id='nv-Share-Label'>{translate('shareLbl')}:</h6>
-                        <button onClick={handleCopyUrl} className='copy_url'>
-                          <BsLink45Deg size={30} />
-                        </button>
-                      </div>
+
+                      <WithoutSeoShare url={decodedURL} title={SettingsData && SettingsData?.web_setting?.web_name} hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`} handleCopyUrl={handleCopyUrl} />
                     }
                   </div>
                   <div id='vps-body-left'>
@@ -401,7 +396,7 @@ const News = () => {
                             className='btn'
                             onClick={() => setbookmarkData(Data && Data[0]?.id, !Bookmark ? 1 : 0)}
                           >
-                            {Bookmark ? <BsFillBookmarkFill size={23} /> : <BsBookmark size={23} />}
+                            {Data[0].bookmark !== 0 ? <BsFillBookmarkFill size={23} /> : <BsBookmark size={23} />}
                           </button>
                           <p id='nv-function-text'>{translate('saveLbl')}</p>
                         </div>
@@ -474,7 +469,8 @@ const News = () => {
 
                 <div id='nv-right-section' className='col-lg-4 col-12'>
                   {Data && Data[0]?.category_id ? (
-                    <RelatedNewsSection Cid={Data && Data[0]?.category_id} Nid={NewsId} />
+                    <RelatedNewsSection categoryId={Data && Data[0]?.category_id} newsSlug={newsSlug}
+                    />
                   ) : null}
                   <TagsSection />
                   {

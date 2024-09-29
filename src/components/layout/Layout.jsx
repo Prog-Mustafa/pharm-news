@@ -1,12 +1,12 @@
 'use client'
 import { useEffect } from 'react'
-import { laodSettingsApi, settingsData, loadSystemTimezone } from 'src/store/reducers/settingsReducer'
+import { laodSettingsApi, settingsData, loadSystemTimezone, } from 'src/store/reducers/settingsReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentLanguage, selectCurrentLanguageLabels } from 'src/store/reducers/languageReducer'
 import { useRouter } from 'next/router'
 import Header from './Header'
 import CatNav from '../categories/CatNav'
-import WeatherCard from '../weather/WeatherCard'
+import TopBar from '../topBar/TopBar'
 import SearchPopup from '../search/SearchPopup'
 import Footer from './Footer'
 import { protectedRoutes } from 'src/routes/routes'
@@ -19,6 +19,11 @@ import { getLiveStreamingApi } from 'src/hooks/getliveStreamApi'
 import { useQuery } from '@tanstack/react-query'
 import { checkBreakingNewsData, checkLiveNewsData, checkNewsDataSelector } from 'src/store/reducers/CheckNewsDataReducer'
 import { AllBreakingNewsApi } from 'src/hooks/allBreakingNewsApi'
+import { clearAllSiteData, placeholderImage, translate } from 'src/utils'
+import { themeSelector } from 'src/store/reducers/CheckThemeReducer'
+import maintenanceModeLight from '../../../public/assets/images/Mantenance_Mode_Light.svg'
+import maintenanceModeDark from '../../../public/assets/images/Mantenance_Mode_Dark.svg'
+import Image from 'next/image'
 
 const Layout = ({ children }) => {
   const settings = useSelector(settingsData)
@@ -28,8 +33,16 @@ const Layout = ({ children }) => {
 
   const checkNewsData = useSelector(checkNewsDataSelector)
 
+  const darkThemeMode = useSelector(themeSelector);
+
+  const maintenanceMode = settings?.maintenance_mode
+
+  const cookiesMode = settings?.web_setting?.accept_cookie
+
+
   const isLiveNewsCallOnce = checkNewsData.data.isLiveNewsApiCallOnce
   const isBreakingNewsCallOnce = checkNewsData.data.isBreakingNewsApiCallOnce
+
 
   const dispatch = useDispatch()
 
@@ -39,7 +52,6 @@ const Layout = ({ children }) => {
   useEffect(() => {
     laodSettingsApi({
       onSuccess: res => {
-
       },
       onError: error => {
         console.log(error)
@@ -59,8 +71,23 @@ const Layout = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--primary-color', settings && settings?.web_setting?.web_color_code)
-  }, [settings])
+    if (darkThemeMode) {
+      document.documentElement.style.setProperty('--body-color', settings && settings?.web_setting?.dark_body_color)
+      document.documentElement.style.setProperty('--primary-color', settings && settings?.web_setting?.dark_primary_color)
+      document.documentElement.style.setProperty('--secondary-color', settings && settings?.web_setting?.dark_secondary_color)
+      document.documentElement.style.setProperty('--hover--color', settings && settings?.web_setting?.dark_hover_color)
+      document.documentElement.style.setProperty('--text-primary-color', settings && settings?.web_setting?.dark_text_primary_color)
+      document.documentElement.style.setProperty('--text-secondary-color', settings && settings?.web_setting?.dark_text_secondary_color)
+    }
+    else {
+      document.documentElement.style.setProperty('--body-color', settings && settings?.web_setting?.light_body_color)
+      document.documentElement.style.setProperty('--primary-color', settings && settings?.web_setting?.light_primary_color)
+      document.documentElement.style.setProperty('--secondary-color', settings && settings?.web_setting?.light_secondary_color)
+      document.documentElement.style.setProperty('--hover--color', settings && settings?.web_setting?.light_hover_color)
+      document.documentElement.style.setProperty('--text-primary-color', settings && settings?.web_setting?.light_text_primary_color)
+      document.documentElement.style.setProperty('--text-secondary-color', settings && settings?.web_setting?.light_text_secondary_color)
+    }
+  }, [settings, darkThemeMode])
 
   // Check if the user is authenticated based on the presence of the token
   const isAuthenticated = userData && userData?.data?.token
@@ -188,19 +215,52 @@ const Layout = ({ children }) => {
   }, [currentLanguage])
 
 
+  // to clear cache and siteData every 24 hrs 
+  // useEffect(() => {
+  //   setInterval(() => {
+  //     clearAllSiteData()
+  //     window.location.reload(true);
+  //   }, 86400000);
+  // }, [])
+
+
+
   return (
     <>
-      {settings ? (
-        <>
-          <SearchPopup />
-          <WeatherCard />
-          <Header />
-          <CatNav />
-          <div>{children}</div>
-          {/* <CookiesComponent/> */}
-          <Footer />
-        </>
-      ) : (
+      {settings ? maintenanceMode == '1' ? <div className='under_maintance'>
+        <div>
+          {
+            darkThemeMode ?
+              <Image loading="lazy" src={maintenanceModeDark} alt="underMaintanceImg" width={600} height={600} onError={placeholderImage} /> :
+              <Image loading="lazy" src={maintenanceModeLight} alt="underMaintanceImg" width={600} height={600} onError={placeholderImage} />
+          }
+        </div>
+        <div>
+          <h2 className='title'>
+            {translate("underMaintance")}
+          </h2>
+        </div>
+        <div>
+          <h2 className='desc'>
+            {translate("pleaseTryagain")}
+          </h2>
+        </div>
+        {/* </div> */}
+      </div> :
+        (
+          <>
+            <SearchPopup />
+            <TopBar />
+            <Header />
+            <CatNav />
+            <div>{children}</div>
+            {
+              cookiesMode == '1' &&
+              <CookiesComponent />
+            }
+            <Footer />
+          </>
+        ) : (
         <div className='loader-container'>
           <div className='loader'></div>
         </div>

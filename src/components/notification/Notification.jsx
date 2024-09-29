@@ -1,24 +1,21 @@
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import BreadcrumbNav from '../breadcrumb/BreadcrumbNav';
 import { deleteusernotificationApi } from '../../store/actions/campaign';
 import { translate, NoDataFound } from '../../utils';
 import Skeleton from 'react-loading-skeleton';
 import { MdMessage } from 'react-icons/md';
 import { IoMdThumbsUp } from 'react-icons/io';
-import { loaduserNotification } from '../../store/reducers/notificationbadgeReducer';
 import { selectCurrentLanguage } from '../../store/reducers/languageReducer';
 import { useSelector } from 'react-redux';
-import ReactPaginate from 'react-paginate';
 import { useQuery } from '@tanstack/react-query';
 import { getNotificationsApi } from 'src/hooks/getNotificationApi';
 import { getUser } from 'src/utils/api';
 import toast from 'react-hot-toast';
 import Layout from '../layout/Layout';
-// import NoDataFound from '../noDataFound/NoDataFound';
+;
 import moment from 'moment-timezone';
 import { settingsData } from 'src/store/reducers/settingsReducer';
-import LoadMoreBtn from '../view/adSpaces/loadMoreBtn/LoadMoreBtn';
+import LoadMoreBtn from '../view/loadMoreBtn/LoadMoreBtn';
 
 const Notification = () => {
   const [convertedData, setConvertedData] = useState([]); // Store converted dates separately
@@ -30,6 +27,7 @@ const Notification = () => {
 
   const settings = useSelector(settingsData)
   const systemTimezoneData = settings.system_timezone
+  const [newData, setNewData] = useState([])
 
 
 
@@ -54,7 +52,7 @@ const Notification = () => {
       const { data } = await getNotificationsApi.getUserNotification({
         offset: offset * dataPerPage,
         limit: dataPerPage,
-        user_id: user
+        // user_id: user
       });
       setTotalData(data.total)
       setIsLoading({ loading: false })
@@ -68,7 +66,7 @@ const Notification = () => {
   };
 
   // react query
-  const { data: Data } = useQuery({
+  const { data: Data, refetch } = useQuery({
     queryKey: ['getuserNotification', currentLanguage, offsetdata, offset],
     queryFn: getUserNotification,
 
@@ -89,28 +87,19 @@ const Notification = () => {
     setOffsetdata(newOffset);
   };
 
-  const handleDeleteComment = (e, id) => {
+  const handleDeleteComment = async (e, id) => {
     e.preventDefault();
-    deleteusernotificationApi({
-      id: id,
-      onSuccess: response => {
-        // Remove the deleted notification from the state
-        setData(prevData => prevData.filter(notification => notification.id !== id));
-        toast.success(response.message);
-        loaduserNotification({
-          offset: '0',
-          limit: '10',
-          onSuccess: () => { },
-          onError: () => { }
-        });
-      },
-      onError: error => {
-        if (error === 'No Data Found') {
-          setData('');
-        }
-      }
-    });
+    try {
+      await deleteusernotificationApi({ id });
+      setNotificationData((prevData) => prevData.filter((notification) => notification.id !== id));
+      toast.success('Notification deleted successfully.');
+      refetch(); // Refetch notifications after deletion
+    } catch (error) {
+      toast.error('Error deleting notification.');
+      console.error('Error deleting notification:', error);
+    }
   };
+
 
   // Function to format the date as "DD/MM/YYYY"
   const formatDate = dateString => {
@@ -120,7 +109,7 @@ const Notification = () => {
   };
 
   useEffect(() => {
-    if (notificationData.length > 0) {
+    if (notificationData) {
       // Iterate through each element in Data array and convert date to Asia/Kolkata timezone
       const convertedData = notificationData.map(element => {
         const timestampUtc = formatDate(element.date); // Using the formatDate function to format the date
@@ -141,18 +130,18 @@ const Notification = () => {
 
       <div className='personal_Sec bg-white'>
         <div id='main-Noticard' className='container '>
-          <div className='d-flex bd-highlight mb-3'>
+          {/* <div className='d-flex bd-highlight mb-3'>
             <Link href='/personal-notification' id='btnNotification1' className='btn mx-1 bd-highlight'>
               {' '}
-              {/* {translate('personalLbl')}{' '} */}
+              {translate('personalLbl')}{' '}
               {translate('personalLbl')}{' '}:-
             </Link>
-            {/* <Link href='/news-notification' id='btnNewsnoti' className='btn mx-1 bd-highlight'>
+            <Link href='/news-notification' id='btnNewsnoti' className='btn mx-1 bd-highlight'>
               {' '}
               {translate('news')}
-            </Link> */}
-            {/* <button id='btnNotification1' className="btn  btn mx-1 ms-auto bd-highlight" onClick={handleDeleteAll} > Delete All</button> */}
-          </div>
+            </Link>
+            <button id='btnNotification1' className="btn  btn mx-1 ms-auto bd-highlight" onClick={handleDeleteAll} > Delete All</button>
+          </div> */}
           <div className='my-3'>
             {isLoading.loading ? (
               <div className='col-12 loading_data'>

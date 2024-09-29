@@ -17,7 +17,7 @@ import { loadMobileType, register } from '../../store/reducers/userReducer'
 import PhoneLoginTwo from './PhoneLoginTwo'
 import RagisterModalTwo from './RegisterModalTwo'
 import ForgotPasswordTwo from './ForgotPasswordTwo'
-import { placeholderImage, translate } from '../../utils'
+import { getAuthErrorMessage, placeholderImage, translate } from '../../utils'
 import { settingsData } from '../../store/reducers/settingsReducer'
 import { useSelector } from 'react-redux'
 import { useRouter } from 'next/navigation'
@@ -25,6 +25,7 @@ import FirebaseData from 'src/utils/Firebase'
 import toast from 'react-hot-toast'
 import { locationData } from 'src/store/reducers/settingsReducer'
 import { registerFcmTokenApi } from 'src/store/actions/campaign'
+import { themeSelector } from 'src/store/reducers/CheckThemeReducer'
 
 const SignInModal = props => {
   const { authentication, messaging } = FirebaseData()
@@ -48,6 +49,8 @@ const SignInModal = props => {
   const storedLongitude = location && location.long
 
   const settings = useSelector(settingsData)
+
+  const darkThemeMode = useSelector(themeSelector);
 
   const handleChange = e => {
     const { name, value } = e.target
@@ -108,17 +111,19 @@ const SignInModal = props => {
           fcm_id: location.fcmtoken,
           onSuccess: async res => {
             toast.success(translate('loginMsg'))
-            setTimeout(async () => {
-              await registerFcmTokenApi({
-                token: res.data.fcm_id,
-                latitude: storedLatitude,
-                longitude: storedLongitude,
-                onSuccess: async res => { },
-                onError: async err => {
-                  console.log(err)
-                }
-              })
-            }, [1000])
+            if (res.data.fcm_id) {
+              setTimeout(async () => {
+                await registerFcmTokenApi({
+                  token: res.data.fcm_id,
+                  latitude: storedLatitude,
+                  longitude: storedLongitude,
+                  onSuccess: async res => { },
+                  onError: async err => {
+                    console.log(err)
+                  }
+                })
+              }, [1000])
+            }
 
             // console.log('resLog',res)
 
@@ -155,17 +160,19 @@ const SignInModal = props => {
             status: '1',
             fcm_id: location.fcmtoken,
             onSuccess: success => {
-              setTimeout(async () => {
-                await registerFcmTokenApi({
-                  token: success.data.fcm_id,
-                  latitude: storedLatitude,
-                  longitude: storedLongitude,
-                  onSuccess: async res => { },
-                  onError: async err => {
-                    console.log(err)
-                  }
-                })
-              }, [1000])
+              if (success.data.fcm_id) {
+                setTimeout(async () => {
+                  await registerFcmTokenApi({
+                    token: success.data.fcm_id,
+                    latitude: storedLatitude,
+                    longitude: storedLongitude,
+                    onSuccess: async res => { },
+                    onError: async err => {
+                      console.log(err)
+                    }
+                  })
+                }, [1000])
+              }
               if (success.data.is_login === '0') {
                 //If new User then show the Update Profile Screen
                 navigate.push('/profile-update')
@@ -189,30 +196,30 @@ const SignInModal = props => {
       })
       .catch(function (error) {
         var errorCode = error.code
-        var errorMessage
-        switch (errorCode) {
-          case 'auth/invalid-email':
-            errorMessage = 'Invalid email. Please enter a valid email and try again.'
-            break
-          case 'auth/wrong-password':
-            errorMessage = 'Wrong password. Please enter the correct password and try again.'
-            break
-          case 'auth/user-not-found':
-            errorMessage = 'User not found. Please check your email and try again.'
-            break
-          case 'auth/user-disabled':
-            errorMessage = 'This account has been disabled. Please contact support for assistance.'
-            break
-          case 'auth/too-many-requests':
-            errorMessage = 'Too many requests please try again after some time'
-            break
-          case 'auth/invalid-login-credentials':
-            errorMessage = 'The details entered are incorrect Please enter the correct details and try again.'
-            break
-          // handle other error codes as needed
-          default:
-            errorMessage = 'An error occurred. Please try again later.'
-        }
+        var errorMessage = getAuthErrorMessage(errorCode);
+        // switch (errorCode) {
+        //   case 'auth/invalid-email':
+        //     errorMessage = 'Invalid email. Please enter a valid email and try again.'
+        //     break
+        //   case 'auth/wrong-password':
+        //     errorMessage = 'Wrong password. Please enter the correct password and try again.'
+        //     break
+        //   case 'auth/user-not-found':
+        //     errorMessage = 'User not found. Please check your email and try again.'
+        //     break
+        //   case 'auth/user-disabled':
+        //     errorMessage = 'This account has been disabled. Please contact support for assistance.'
+        //     break
+        //   case 'auth/too-many-requests':
+        //     errorMessage = 'Too many requests please try again after some time'
+        //     break
+        //   case 'auth/invalid-login-credentials':
+        //     errorMessage = 'The details entered are incorrect Please enter the correct details and try again.'
+        //     break
+        //   // handle other error codes as needed
+        //   default:
+        //     errorMessage = 'An error occurred. Please try again later.'
+        // }
         // display error message in a toast or alert
         toast.error(errorMessage)
       })
@@ -236,9 +243,9 @@ const SignInModal = props => {
       >
         <div className='ModalWrapper' id='ModalWrapper'>
           <div style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px' }} id='login_img1'>
-            <img className='ModalImg' src={photo.src} alt='login image' />
+            <img className='ModalImg' src={photo.src} alt='login image' onError={placeholderImage} />
             <div className='logo-img-overlay'>
-              <img src={settings && settings?.web_setting?.web_header_logo} alt='logo image' id='logo1' onError={placeholderImage} />
+              <img src={settings && darkThemeMode ? settings?.web_setting?.dark_header_logo : settings?.web_setting?.light_header_logo} alt='logo image' id='logo1' onError={placeholderImage} />
             </div>
           </div>
           <div id='modal-content'>
@@ -305,27 +312,34 @@ const SignInModal = props => {
                       </div>
                     </div>
                     <div className='py-3' id='login'>
-                      <button type='submit' className='btn   btn-lg  w-100' id='loginbutton' onClick={Signin}>
+                      <button type='submit' className='btn btn-lg w-100 commonBtn' id='loginbutton' onClick={Signin}>
                         {translate('loginTxt')}
                       </button>
                     </div>
                   </form>
-                  <div className='bordert mx-3 my-3 py-2'></div>
+                  <div className='ORDiv mx-3 my-3 py-2'>
+                    <span>{translate('or')}</span>
+                  </div>
                 </div>
                 <div className='container px-0' id='social_buttons'>
                   <div className='row'>
-                    <div className='col-lg-6 col-12'>
+                    <div className={`${process.env.NEXT_PUBLIC_FIREBASE_MOBILE_LOGIN === 'true' ? 'col-lg-6' : 'col-lg-12'}  col-12`}>
                       <button id='login-social2' type='button' className=' btn ' onClick={signInWithGoogle}>
                         <FaGoogle />
                         <p>{translate('signin-with-google')}</p>
                       </button>
                     </div>
-                    <div className='col-lg-6 col-12'>
-                      <Button id='login-social3' type='button' onClick={e => signInwithPhone(e)}>
-                        <FaMobileAlt />
-                        <p>{translate('signin-with-phone')}</p>
-                      </Button>
-                    </div>
+                    {
+                      process.env.NEXT_PUBLIC_FIREBASE_MOBILE_LOGIN === 'true' &&
+                      <div className='col-lg-6 col-12'>
+                        <Button id='login-social3' type='button' onClick={e => signInwithPhone(e)}>
+                          <FaMobileAlt />
+                          <p>{translate('signin-with-phone')}</p>
+                        </Button>
+                      </div>
+
+                    }
+
                   </div>
                 </div>
               </div>

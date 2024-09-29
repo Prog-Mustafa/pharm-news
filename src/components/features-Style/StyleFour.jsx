@@ -6,8 +6,9 @@ import VideoPlayerModal from '../videoplayer/VideoPlayerModal'
 import { useState } from 'react'
 import AdSpaces from '../view/adSpaces/AdSpaces'
 import CommonViewMoreDiv from './CommonViewMoreDiv'
+import StyleFourSkeleton from '../skeletons/StyleFourSkeleton'
 
-const StyleFour = ({ Data }) => {
+const StyleFour = ({ Data, isLoading }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -28,8 +29,9 @@ const StyleFour = ({ Data }) => {
 
   return (
     <>
+
       {/* ad spaces */}
-      {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id && Data.news_type === 'videos' ? (
+      {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id && Data.news_type === 'videos' ? (
         <>
           <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'four'} />
         </>
@@ -93,7 +95,7 @@ const StyleFour = ({ Data }) => {
       ) : null}
 
       {/* ad spaces */}
-      {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id && Data.news_type === 'news' ? (
+      {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id && Data.news_type === 'news' ? (
         <>
           <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'four'} />
         </>
@@ -106,13 +108,13 @@ const StyleFour = ({ Data }) => {
             <div className='row'>
               <div id='rns-cards-main' className=''>
                 <CommonViewMoreDiv title={Data && Data.title} desc={Data && Data.short_description} link={`/view-all/${Data.slug}`} />
-                <div className='row'>
+                <div className='row mb-5'>
                   {Data.news.map((value, index) => {
                     return (
                       <div className='col-xxl-4 col-lg-4 col-md-4 col-sm-6 col-12' key={value.id}>
                         <Link id='rns-card' className='card card_hover_two'
                           href={{ pathname: `/news/${value.slug}`, query: { language_id: value.language_id } }}
-                          as={`/news/${value.slug}`}
+                          // as={`/news/${value.slug}`}
                         >
                           <div className='banner_thumb'>
                             <img
@@ -147,7 +149,7 @@ const StyleFour = ({ Data }) => {
       ) : null}
 
       {/* ad spaces */}
-      {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id && Data.news_type === 'breaking_news' ? (
+      {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id && Data.news_type === 'breaking_news' ? (
         <>
           <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'four'} />
         </>
@@ -160,7 +162,7 @@ const StyleFour = ({ Data }) => {
             <div className='row'>
               <div id='rns-cards-main' className=''>
                 <CommonViewMoreDiv title={Data && Data.title} desc={Data && Data.short_description} link={`/view-all/${Data.slug}`} />
-                <div className='row'>
+                <div className='row mb-5'>
                   {Data && Data.breaking_news.map((value, index) => {
                     return (
                       <div className='col-xxl-4 col-lg-4 col-md-4 col-sm-6 col-12' key={value.id}>
@@ -168,7 +170,7 @@ const StyleFour = ({ Data }) => {
                           id='rns-card'
                           className='card card_hover_two'
                           href={{ pathname: `/breaking-news/${value.slug}`, query: { language_id: value.language_id } }}
-                          as={`/breaking-news/${value.slug}`}
+                          // as={`/breaking-news/${value.slug}`}
                         >
                           <div className='banner_thumb'>
                             <img
@@ -196,6 +198,7 @@ const StyleFour = ({ Data }) => {
           </div>
         </div>
       ) : null}
+
     </>
   )
 }

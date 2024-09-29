@@ -5,7 +5,7 @@ import { SetSearchPopUp } from '../../store/stateSlice/clickActionSlice'
 import { store } from '../../store/store'
 import { useRouter } from 'next/navigation'
 import { AiOutlineClose } from 'react-icons/ai'
-import { truncateText } from '../../utils'
+import { placeholderImage, truncateText } from '../../utils'
 import { getNewsApi } from 'src/hooks/newsApi'
 import { getLanguage, getUser } from 'src/utils/api'
 import { useQuery } from '@tanstack/react-query'
@@ -119,7 +119,7 @@ const SearchPopup = () => {
               onChange={handleInputChange}
             />
           </div>
-          <button type='submit' className='submit-btn' onClick={() => setSearchValue('')}>
+          <button type='submit' className='submit-btn' onClick={actionSearch}>
             <AiOutlineClose />
           </button>
           <div
@@ -140,10 +140,10 @@ const SearchPopup = () => {
                     <div className='col-12 px-0' key={element.id}>
                       <Link id='Link-all'
                         href={{ pathname: `/news/${element.slug}`, query: { language_id: element.language_id } }}
-                        as={`/news/${element.slug}`}
+                        // as={`/news/${element.slug}`}
                       >
                         <div id='ts-card' className='card'>
-                          <img id='ts-card-image' src={element.image} className='card-img' alt={element.title} />
+                          <img id='ts-card-image' src={element.image} className='card-img' alt={element.title} onError={placeholderImage} />
                           <div id='ts-card-body' className='card-body'>
                             <h5 id='ts-card-title' className='card-title'>
                               {truncateText(element.title, 150)}

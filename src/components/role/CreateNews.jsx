@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import BreadcrumbNav from '../breadcrumb/BreadcrumbNav'
-import { translate } from '../../utils'
+import { placeholderImage, translate } from '../../utils'
 import { Button, Form } from 'react-bootstrap'
 import DatePicker from 'react-datepicker'
 import { AiFillPicture, AiOutlineUpload } from 'react-icons/ai'
@@ -26,6 +26,8 @@ import { getlocationapi } from 'src/hooks/getlocationApi'
 import toast from 'react-hot-toast'
 import Layout from '../layout/Layout'
 import { Input } from 'antd'
+import { IoIosCloseCircle } from 'react-icons/io'
+import { addDays } from 'date-fns'
 const { TextArea } = Input
 
 const { Option } = Select
@@ -47,9 +49,9 @@ const CreateNews = () => {
   const getLocation = useSelector(settingsData)
   const [DefaultValue, setDefualtValue] = useState({
     defualtTitle: null,
-    defaultMetatitle: null,
-    defaultMetaDescription: null,
-    defaultMetaKeyword: null,
+    defaultMetatitle: '',
+    defaultMetaDescription: '',
+    defaultMetaKeyword: '',
     defaultSlug: null,
     defualtLanguage: null,
     defualtCategory: null,
@@ -62,6 +64,7 @@ const CreateNews = () => {
     defaultTagName: null,
     defualtContent: null,
     defualtStartDate: null,
+    defualtPublishDate: null,
     defualtUrl: null,
     defaultVideoData: null,
     defaultImageData: null,
@@ -83,6 +86,10 @@ const CreateNews = () => {
     // All files are images, add them to the state
     setImages([...images, ...imageFiles])
   }
+
+  const handleRemove = (indexToRemove) => {
+    setImages(images.filter((_, index) => index !== indexToRemove));
+  };
 
   // description content
   const handleChangeContent = value => {
@@ -196,6 +203,18 @@ const CreateNews = () => {
     }
   }
 
+  const dateConfirmation = () => {
+
+    const showTillDate = DefaultValue.defualtStartDate;
+    const publishDate = DefaultValue.defualtPublishDate;
+
+    if (publishDate && showTillDate && publishDate > showTillDate) {
+      toast.error(translate('dateConfirmation'));
+      return; // Prevent form submission
+    }
+
+  }
+
   // next screen step 2
   const nextStep = e => {
     e.preventDefault()
@@ -205,20 +224,20 @@ const CreateNews = () => {
       return
     }
 
-    if (!DefaultValue.defaultMetatitle) {
-      toast.error(translate("metaTitlerequired"))
-      return
-    }
+    // if (!DefaultValue.defaultMetatitle) {
+    //   toast.error(translate("metaTitlerequired"))
+    //   return
+    // }
 
-    if (!DefaultValue.defaultMetaDescription) {
-      toast.error(translate("metaDescriptionrequired"))
-      return
-    }
+    // if (!DefaultValue.defaultMetaDescription) {
+    //   toast.error(translate("metaDescriptionrequired"))
+    //   return
+    // }
 
-    if (!DefaultValue.defaultMetaKeyword) {
-      toast.error(translate("metaKeywordsrequired"))
-      return
-    }
+    // if (!DefaultValue.defaultMetaKeyword) {
+    //   toast.error(translate("metaKeywordsrequired"))
+    //   return
+    // }
 
     if (!DefaultValue.defaultSlug) {
       toast.error(translate("slugrequired"))
@@ -235,6 +254,10 @@ const CreateNews = () => {
 
     if (!DefaultValue.defaultType) {
       toast.error(translate("contentTyperequired"))
+      return
+    }
+    if (!DefaultValue.defualtPublishDate) {
+      toast.error(translate("publishDateRequired"))
       return
     }
 
@@ -470,27 +493,10 @@ const CreateNews = () => {
 
   // final submit data
   const finalSubmit = async e => {
+
     e.preventDefault()
-    // meta title validation
-    // const isMetaTitleValid = handleMetaTitleChange()
-    // if (!isMetaTitleValid) {
-    //   return // Stop execution if meta title validation fails
-    // }
-
-    // meta description validation
-    // const isMetaDescriptionValid = handleMetaDescriptionChange()
-    // if (!isMetaDescriptionValid) {
-    //   return // Stop execution if meta description validation fails
-    // }
-
-    if (!content) {
-      toast.error(translate('descriptionisrequire'))
-      return
-    }
 
     const slugValue = await slugConverter()
-
-    // console.log(slugValue,'slugvalue')
 
     await setNewsApi({
       action_type: 1,
@@ -507,7 +513,14 @@ const CreateNews = () => {
       description: content,
       image: DefaultValue.defaultImagefile,
       ofile: images,
-      show_till: DefaultValue.defualtStartDate?.toISOString().split('T')[0],
+      show_till: DefaultValue.defualtStartDate ? new Date(DefaultValue.defualtStartDate.getTime() - DefaultValue.defualtStartDate.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split('T')[0] : '',
+      published_date: new Date(DefaultValue.defualtPublishDate.getTime() - DefaultValue.defualtPublishDate.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split('T')[0],
+      // show_till: DefaultValue.defualtStartDate?.toISOString().split('T')[0],
+      // published_date: DefaultValue.defualtPublishDate?.toISOString().split('T')[0],
       language_id: createNewsLanguage.id,
       location_id: DefaultValue.defualtLocation ? DefaultValue.defualtLocation : null,
       onSuccess: response => {
@@ -525,6 +538,11 @@ const CreateNews = () => {
     setNextStepScreen(false)
   }
 
+  useEffect(() => {
+    dateConfirmation()
+  }, [DefaultValue.defualtStartDate, DefaultValue.defualtPublishDate])
+
+
   return (
     <Layout>
       <BreadcrumbNav SecondElement={translate('createNewsLbl')} />
@@ -532,7 +550,7 @@ const CreateNews = () => {
         <div className='container'>
           <div className='row'>
             <div className='col-md-7 col-12'>
-              <img className='create-img' src={createnewsimage.src} alt='create news' />
+              <img className='create-img' src={createnewsimage.src} alt='create news' onError={placeholderImage} />
             </div>
 
             <div className='col-md-5 col-12'>
@@ -783,11 +801,23 @@ const CreateNews = () => {
                     <div className='show_date mb-2'>
                       <DatePicker
                         dateFormat='yyyy-MM-dd'
+                        selected={DefaultValue.defualtPublishDate}
+                        placeholderText={translate('publishDate')}
+                        clearButtonTitle
+                        todayButton={'Today'}
+                        minDate={new Date()}
+                        onChange={date => setDefualtValue({ ...DefaultValue, defualtPublishDate: date })}
+                      />
+                      <SlCalender className='form-calender' />
+                    </div>
+                    <div className='show_date mb-2'>
+                      <DatePicker
+                        dateFormat='yyyy-MM-dd'
                         selected={DefaultValue.defualtStartDate}
                         placeholderText={translate('showTilledDate')}
                         clearButtonTitle
                         todayButton={'Today'}
-                        minDate={new Date()}
+                        minDate={addDays(new Date(), 1)}
                         onChange={date => setDefualtValue({ ...DefaultValue, defualtStartDate: date })}
                       />
                       <SlCalender className='form-calender' />
@@ -811,7 +841,7 @@ const CreateNews = () => {
                       </label>
                       {DefaultValue.defaultImageData && (
                         <div className='mainimage'>
-                          <img src={DefaultValue.defaultImageData} alt='mainimage' />
+                          <img src={DefaultValue.defaultImageData} alt='mainimage' onError={placeholderImage} />
                         </div>
                       )}
                       <input
@@ -840,12 +870,15 @@ const CreateNews = () => {
                       <Swiper {...swiperOption}>
                         {images.map((file, index) => (
                           <SwiperSlide key={index}>
-                            <img src={URL.createObjectURL(file)} alt={`Uploaded ${index}`} />
+                            <div className='otherImgDiv'>
+                              <span onClick={() => handleRemove(index)}><IoIosCloseCircle /> </span>
+                              <img src={URL.createObjectURL(file)} alt={`Uploaded ${index}`} />
+                            </div>
                           </SwiperSlide>
                         ))}
                       </Swiper>
                     </div>
-                    <Button type='submit' className='btn btn-secondary next-btn'>
+                    <Button type='submit' className='btn btn-secondary next-btn commonBtn'>
                       {translate('nxt')}
                     </Button>
                   </div>
@@ -861,12 +894,12 @@ const CreateNews = () => {
                   </div>
                   <div className='row'>
                     <div className='col-md-6'>
-                      <Button type='button' className='btn btn-secondary backbtn' onClick={Back}>
+                      <Button type='button' className='btn btn-secondary backbtn commonBtn' onClick={Back}>
                         {translate('back')}
                       </Button>
                     </div>
                     <div className='col-md-6'>
-                      <Button type='submit' className=' btn btn-secondary subbtn'>
+                      <Button type='submit' className=' btn btn-secondary subbtn commonBtn'>
                         {translate('submitBtn')}
                       </Button>
                     </div>

@@ -1,47 +1,47 @@
-import React from 'react';
-import { Breadcrumb } from 'antd';
+import Link from 'next/link'
+import React from 'react'
 import { FaHome } from 'react-icons/fa';
+import { translate } from 'src/utils';
 
-const BreadcrumbNav = ({ SecondElement, ThirdElement, FourthElement }) => {
-  const items = [
-    {
-      title: (
-        <span>
-          <FaHome size={25} id='bcb-home-logo' className='me-1' />
-          Home
-        </span>
-      ),
-      href: '/',
-    },
-  ];
-
-  if (SecondElement !== '') {
-    items.push({
-      title: SecondElement,
-      href: SecondElement == 'category' ? '/all-categories' : null
-    });
-  }
-
-  if (ThirdElement !== '') {
-    items.push({
-      title: ThirdElement,
-    });
-  }
-
-  if (FourthElement !== '') {
-    items.push({
-      title: FourthElement,
-      href: '',
-    });
-  }
+const Breadcrum = ({ SecondElement, ThirdElement, FourthElement }) => {
+  const formatElement = (element) => {
+    // Check if the element is a number
+    if (!isNaN(element)) {
+      return element;
+    }
+    // Otherwise, capitalize the first letter
+    return element?.charAt(0).toUpperCase() + element?.slice(1);
+  };
 
   return (
-    <Breadcrumb
-      className='container breadcrumbWrapper'
-      separator="|"
-      items={items}
-    />
-  );
-};
+    <div className='breadcrumbWrapper'>
+      <div className='pageName container'>
+        <Link href={'/'} className='firstElement'>
+          <FaHome size={25} className='me-1' />
+          <span> {translate('home')} </span>
+        </Link>
+        <span> | </span>
+        {
+          SecondElement === 'category'
+            ? <Link href={'/all-categories'}><span>{translate('catLbl')}</span></Link>
+            : <span>{formatElement(SecondElement)}</span>
+        }
 
-export default BreadcrumbNav;
+        {ThirdElement && (
+          <>
+            <span> | </span>
+            <span className='contentUpperCase'>{formatElement(ThirdElement)}</span>
+          </>
+        )}
+        {FourthElement && (
+          <>
+            <span> | </span>
+            <span className='contentUpperCase'>{formatElement(FourthElement)}</span>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default Breadcrum;

@@ -6,6 +6,7 @@ import VideoPlayerModal from '../videoplayer/VideoPlayerModal'
 import { BsFillPlayFill } from 'react-icons/bs'
 import AdSpaces from '../view/adSpaces/AdSpaces'
 import CommonViewMoreDiv from './CommonViewMoreDiv'
+import StyleTwoSkeleton from '../skeletons/StyleTwoSkeleton'
 
 const StyleTwo = ({ Data }) => {
 
@@ -30,12 +31,13 @@ const StyleTwo = ({ Data }) => {
 
   return (
     <>
+
       {/* videos */}
       {Data.videos && Data.videos?.length > 0 ? (
         <div className='new_video_style_two'>
           <div className='container'>
             {/* ad spaces */}
-            {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id ? (
+            {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id ? (
               <>
                 <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'two'} />
               </>
@@ -127,9 +129,9 @@ const StyleTwo = ({ Data }) => {
                       TypeUrl(Data.videos[4].type)
                     }}
                   >
-                    <img src={Data.videos[4] && Data.videos[4].image} alt={Data.videos[4] && Data.videos[4].title} />
+                    <img src={Data.videos[4] && Data.videos[4].image} alt={Data.videos[4] && Data.videos[4].title} onError={placeholderImage}/>
                     <div className='video_button'>
-                      <BsFillPlayFill className='pulse' fill='white' size={50} onError={placeholderImage} />
+                      <BsFillPlayFill className='pulse' fill='white' size={50}  />
                     </div>
                     <div className='content'>
                       <p>{Data.videos[4] && Data.videos[4].title}</p>
@@ -156,7 +158,7 @@ const StyleTwo = ({ Data }) => {
         <div className='new_video_style_two'>
           <div className='container'>
             {/* ad spaces */}
-            {Data && Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id ? (
+            {Data && Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id ? (
               <>
                 <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'two'} />
               </>
@@ -170,7 +172,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.news[0] ? (
                   <Link
                     href={{ pathname: `/news/${Data.news[0].slug}`, query: { language_id: Data.news[0].language_id } }}
-                    as={`/news/${Data.news[0].slug}`}
+                    // as={`/news/${Data.news[0].slug}`}
                   >
                     <div
                       className='video_first_top card card_hover'
@@ -188,7 +190,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.news[1] ? (
                   <Link
                     href={{ pathname: `/news/${Data.news[1].slug}`, query: { language_id: Data.news[1].language_id } }}
-                    as={`/news/${Data.news[1].slug}`}
+                    // as={`/news/${Data.news[1].slug}`}
                   >
                     <div
                       className='video_seond_top card card_hover'
@@ -207,7 +209,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.news[2] ? (
                   <Link
                     href={{ pathname: `/news/${Data.news[2].slug}`, query: { language_id: Data.news[2].language_id } }}
-                    as={`/news/${Data.news[2].slug}`}
+                    // as={`/news/${Data.news[2].slug}`}
                   >
                     <div
                       className='video_center card card_hover'
@@ -226,7 +228,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.news[3] ? (
                   <Link
                     href={{ pathname: `/news/${Data.news[3].slug}`, query: { language_id: Data.news[3].language_id } }}
-                    as={`/news/${Data.news[3].slug}`}
+                    // as={`/news/${Data.news[3].slug}`}
                   >
                     <div
                       className='video_top_right card card_hover'
@@ -244,7 +246,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.news[4] ? (
                   <Link
                     href={{ pathname: `/news/${Data.news[4].slug}`, query: { language_id: Data.news[4].language_id } }}
-                    as={`/news/${Data.news[4].slug}`}
+                    // as={`/news/${Data.news[4].slug}`}
                   >
                     <div
                       className='video_bottom_right card card_hover'
@@ -269,7 +271,7 @@ const StyleTwo = ({ Data }) => {
         <div className='new_video_style_two'>
           <div className='container'>
             {/* ad spaces */}
-            {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id ? (
+            {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id ? (
               <>
                 <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'two'} />
               </>
@@ -282,7 +284,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.breaking_news[0] ? (
                   <Link
                     href={{ pathname: `/breaking-news/${Data.breaking_news[0].slug}`, query: { language_id: Data.breaking_news[0].language_id } }}
-                    as={`/breaking-news/${Data.breaking_news[0].slug}`}
+                    // as={`/breaking-news/${Data.breaking_news[0].slug}`}
                   >
                     <div
                       className='video_first_top card card_hover'
@@ -303,7 +305,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.breaking_news[1] ? (
                   <Link
                     href={{ pathname: `/breaking-news/${Data.breaking_news[1].slug}`, query: { language_id: Data.breaking_news[1].language_id } }}
-                    as={`/breaking-news/${Data.breaking_news[1].slug}`}
+                    // as={`/breaking-news/${Data.breaking_news[1].slug}`}
                   >
                     <div
                       className='video_seond_top card card_hover'
@@ -325,7 +327,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.breaking_news[2] ? (
                   <Link
                     href={{ pathname: `/breaking-news/${Data.breaking_news[2].slug}`, query: { language_id: Data.breaking_news[2].language_id } }}
-                    as={`/breaking-news/${Data.breaking_news[2].slug}`}
+                    // as={`/breaking-news/${Data.breaking_news[2].slug}`}
                   >
                     <div
                       className='video_center card card_hover'
@@ -348,7 +350,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.breaking_news[3] ? (
                   <Link
                     href={{ pathname: `/breaking-news/${Data.breaking_news[3].slug}`, query: { language_id: Data.breaking_news[3].language_id } }}
-                    as={`/breaking-news/${Data.breaking_news[3].slug}`}
+                    // as={`/breaking-news/${Data.breaking_news[3].slug}`}
                   >
                     <div
                       className='video_top_right card card_hover'
@@ -370,7 +372,7 @@ const StyleTwo = ({ Data }) => {
                 {Data.breaking_news[4] ? (
                   <Link
                     href={{ pathname: `/breaking-news/${Data.breaking_news[4].slug}`, query: { language_id: Data.breaking_news[4].language_id } }}
-                    as={`/breaking-news/${Data.breaking_news[4].slug}`}
+                    // as={`/breaking-news/${Data.breaking_news[4].slug}`}
                   >
                     <div
                       className='video_bottom_right card card_hover'
@@ -393,6 +395,7 @@ const StyleTwo = ({ Data }) => {
           </div>
         </div>
       ) : null}
+
     </>
   )
 }

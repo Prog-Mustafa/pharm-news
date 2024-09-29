@@ -1,27 +1,31 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { getQuestionApi } from 'src/hooks/getQuestion';
 import { setQuestionResultApi } from 'src/store/actions/campaign';
-import { getLanguage, getUser } from 'src/utils/api';
+import { getLanguage } from 'src/utils/api';
 import Card from '../skeletons/Card';
 import { ProgressBar } from 'react-bootstrap';
+import { translate } from 'src/utils';
 
 const Surveys = () => {
-    const [submited, setSubmited] = useState(false);
+
     const [selectedOption, setSelectedOption] = useState('');
+    const [selectedOptionQuesId, setSelectedOptionQuesId] = useState('');
     const [submittedQuestionId, setSubmittedQuestionId] = useState(null);
-    const [visibleQuestionsCount, setVisibleQuestionsCount] = useState(2); // Initial count of visible questions
+    const [submittedAnswer, setsubmittedAnswer] = useState([])
+
+    const [submittedQuestionIds, setSubmittedQuestionIds] = useState([]);
+
+    const [answeredOnce, setAnsweredOnce] = useState(false)
 
     let { id: language_id } = getLanguage();
-    let user = getUser();
 
     // api call
     const getQuestion = async () => {
         try {
             const { data } = await getQuestionApi.getQuestion({
                 language_id: language_id,
-                user_id: user,
             });
             return data.data;
         } catch (error) {
@@ -37,6 +41,7 @@ const Surveys = () => {
 
     const handleOptionClick = (options) => {
         setSelectedOption(options.id);
+        setSelectedOptionQuesId(options?.question_id)
         setQuestionResultApi({
             language_id: language_id,
             question_id: options?.question_id,
@@ -55,6 +60,10 @@ const Surveys = () => {
                 language_id: language_id,
                 question_id: id,
             });
+            if (!answeredOnce) {
+                setsubmittedAnswer(data?.data)
+                setAnsweredOnce(true)
+            }
             return data.data;
         } catch (error) {
             console.log(error);
@@ -68,46 +77,67 @@ const Surveys = () => {
     });
 
     const handleSubmit = (id) => {
-        setSubmittedQuestionId(id);
-        setSubmited(true);
-    };
-
-    const handleLoadMore = () => {
-        setVisibleQuestionsCount((prevCount) => prevCount + 2);
+        if (selectedOption && selectedOptionQuesId === id) {
+            setSubmittedQuestionId(id);
+            setSubmittedQuestionIds((prevIds) => [...prevIds, id]);
+        } else {
+            toast.error(translate('optSel'))
+        }
     };
 
     return (
         <section className='surveysSect'>
             {questionsData &&
-                questionsData
-                    .filter((_, index) => index < visibleQuestionsCount)
+                questionsData.slice(0, 2)
                     .map((survey) => {
                         if (submittedQuestionId === null || submittedQuestionId !== survey.id) {
-                            // Render the question if it hasn't been submitted or if it's not the submitted question
                             return (
                                 <div className='' key={survey.id}>
                                     <div className="card">
                                         <span className='question'>{survey?.question}</span>
-                                        {survey?.survey_options.map((options) => {
-                                            return (
-                                                <span
-                                                    key={options.id}
-                                                    className={`options ${options.id === selectedOption ? 'selectedOption' : ''
-                                                        }`}
-                                                    onClick={() => handleOptionClick(options)}
-                                                >
-                                                    {options?.options}
-                                                </span>
-                                            );
-                                        })}
-                                        <button className='submitBtn' onClick={() => handleSubmit(survey.id)}>
-                                            Submit
-                                        </button>
+
+                                        {
+                                            submittedQuestionIds.includes(survey.id) ?
+                                                <>
+                                                    {submittedAnswer &&
+                                                        submittedAnswer[0]?.survey_options?.map((options) => (
+                                                            <div key={options.id}>
+                                                                <span>
+                                                                    <ProgressBar now={options.percentage} />
+                                                                </span>
+                                                                <span className='percentage'>
+                                                                    {parseFloat(options.percentage) % 1 === 0
+                                                                        ? options.percentage
+                                                                        : parseFloat(options.percentage).toFixed(2)}%
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                </>
+                                                :
+                                                <>
+
+                                                    {survey?.survey_options.map((options) => {
+                                                        return (
+                                                            <span
+                                                                key={options.id}
+                                                                className={`options ${options.id === selectedOption ? 'selectedOption' : ''
+                                                                    }`}
+                                                                onClick={() => handleOptionClick(options)}
+                                                            >
+                                                                {options?.options}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                    <button className='submitBtn commonBtn' onClick={() => handleSubmit(survey.id,)}>
+                                                        Submit
+                                                    </button>
+                                                </>
+                                        }
+
                                     </div>
                                 </div>
                             );
                         }
-                        // Otherwise, render the answers for the submitted question
                         return (
                             <div className='' key={survey.id}>
                                 <div className="card resultCard">
@@ -122,7 +152,9 @@ const Surveys = () => {
                                                     <ProgressBar now={options.percentage} />
                                                 </span>
                                                 <span className='percentage'>
-                                                    {Math.ceil(options.percentage)}%
+                                                    {parseFloat(options.percentage) % 1 === 0
+                                                        ? options.percentage
+                                                        : parseFloat(options.percentage).toFixed(2)}%
                                                 </span>
                                             </div>
                                         ))
@@ -131,9 +163,6 @@ const Surveys = () => {
                             </div>
                         );
                     })}
-            {questionsData && visibleQuestionsCount < questionsData.length && (
-                <button onClick={handleLoadMore} className='loadMoreBtn commonBtn'>Load More</button>
-            )}
         </section>
     );
 };

@@ -12,7 +12,7 @@ import CommonViewMoreDiv from './CommonViewMoreDiv'
 
 SwiperCore.use([Navigation, Pagination, Autoplay])
 
-const StyleOne = ({ isLoading, Data }) => {
+const StyleOne = ({ Data }) => {
   const truncate = input => (input?.length > 180 ? `${input.substring(0, 180)}...` : input)
 
   const swiperOption = {
@@ -48,7 +48,7 @@ const StyleOne = ({ isLoading, Data }) => {
   return (
     <div id='first-section'>
       {/* ad spaces */}
-      {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id && Data.news_type === 'videos' ? (
+      {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id && Data.news_type === 'videos' ? (
         <>
           <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'one'} />
         </>
@@ -57,12 +57,7 @@ const StyleOne = ({ isLoading, Data }) => {
       {/* video section */}
       {Data.videos && Data.videos?.length > 0 ? (
         <Swiper {...swiperOption} className='custom-swiper'>
-          {isLoading ? (
-            // Show skeleton loading when data is being fetched
-            <div className='col-12 loading_data'>
-              <Skeleton height={20} count={22} />
-            </div>
-          ) : (
+          {
             Data.videos.slice(0, 3).map(item => (
               <SwiperSlide key={item.id}>
                 <div id='fs-main' className='h-100 video_style_one inner_custom_swiper'>
@@ -102,7 +97,7 @@ const StyleOne = ({ isLoading, Data }) => {
                 </div>
               </SwiperSlide>
             ))
-          )}
+          }
           <VideoPlayerModal
             show={modalShow}
             onHide={() => setModalShow(false)}
@@ -116,7 +111,7 @@ const StyleOne = ({ isLoading, Data }) => {
       ) : null}
 
       {/* ad spaces */}
-      {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id && Data.news_type === 'news' ? (
+      {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id && Data.news_type === 'news' ? (
         <>
           <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'one'} />
         </>
@@ -133,12 +128,7 @@ const StyleOne = ({ isLoading, Data }) => {
           </div>
 
           <Swiper {...swiperOption} className='custom-swiper'>
-            {isLoading ? (
-              // Show skeleton loading when data is being fetched
-              <div className='col-12 loading_data'>
-                <Skeleton height={20} count={22} />
-              </div>
-            ) : (
+            {
               Data.news.slice(0, 3).map(item => (
                 <SwiperSlide key={item.id}>
 
@@ -149,16 +139,19 @@ const StyleOne = ({ isLoading, Data }) => {
                           <div id='Left-first-section' className='my-auto'>
                             <Link id='btnCatagory' className='btn' type='button'
                               href={{ pathname: `/news/${item.slug}`, query: { language_id: item.language_id } }}
-                              as={`/news/${item.slug}`}
+                              // as={`/news/${item.slug}`}
                             >
                               {truncateText(item.category_name, 10)}
                             </Link>
                             <div className='my-3 top-title'>{truncateText(item.title, 60)}</div>
-                            <p className='mb-3 para'>{stripHtmlTags(item.description).substring(0, 100) + '...'}</p>
+                            {
+                              stripHtmlTags(item.description).length > 0 &&
+                              <p className='mb-3 para'>{stripHtmlTags(item.description).substring(0, 100) + '...'}</p>
+                            }
                             <div className='d-flex flex-wrap'>
                               <Link id='btnReadMore' className='mb-0 commonBtn' type='button'
                                 href={{ pathname: `/news/${item.slug}`, query: { language_id: item.language_id } }}
-                                as={`/news/${item.slug}`}
+                                // as={`/news/${item.slug}`}
                               >
                                 <b>{translate('readmore')}</b>
                               </Link>
@@ -186,7 +179,7 @@ const StyleOne = ({ isLoading, Data }) => {
                   </div>
                 </SwiperSlide>
               ))
-            )}
+            }
             <VideoPlayerModal
               show={modalShow}
               onHide={() => setModalShow(false)}
@@ -201,7 +194,7 @@ const StyleOne = ({ isLoading, Data }) => {
       ) : null}
 
       {/* ad spaces */}
-      {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id && Data.news_type === 'breaking_news' ? (
+      {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id && Data.news_type === 'breaking_news' ? (
         <>
           <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'one'} />
         </>
@@ -210,12 +203,7 @@ const StyleOne = ({ isLoading, Data }) => {
       {/* breaking news section */}
       {Data && Data.breaking_news?.length > 0 ? (
         <Swiper {...swiperOption} className='custom-swiper'>
-          {isLoading ? (
-            // Show skeleton loading when data is being fetched
-            <div className='col-12 loading_data'>
-              <Skeleton height={20} count={22} />
-            </div>
-          ) : (
+          {
             Data.breaking_news.slice(0, 3).map(item => (
               <SwiperSlide key={item.id}>
 
@@ -234,7 +222,7 @@ const StyleOne = ({ isLoading, Data }) => {
                               className='btn mb-0'
                               type='button'
                               href={{ pathname: `/breaking-news/${item.slug}`, query: { language_id: item.language_id } }}
-                              as={`/breaking-news/${item.slug}`}
+                              // as={`/breaking-news/${item.slug}`}
                             >
                               <b>{translate('readmore')}</b>
                             </Link>
@@ -262,7 +250,7 @@ const StyleOne = ({ isLoading, Data }) => {
                 </div>
               </SwiperSlide>
             ))
-          )}
+          }
           <VideoPlayerModal
             show={modalShow}
             onHide={() => setModalShow(false)}

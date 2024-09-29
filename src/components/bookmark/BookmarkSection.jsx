@@ -1,10 +1,8 @@
 'use client'
 import bookmarkIMG from '../../../public/assets/images/bookmark.png'
 import { FiCalendar } from 'react-icons/fi'
-import { BsTrash } from 'react-icons/bs'
 import BreadcrumbNav from '../breadcrumb/BreadcrumbNav'
 import { placeholderImage, translate } from '../../utils'
-import Skeleton from 'react-loading-skeleton'
 import { useRouter } from 'next/navigation'
 import { bookmarkApi } from 'src/hooks/bookmarkApi'
 import { useQuery } from '@tanstack/react-query'
@@ -38,14 +36,16 @@ const BookmarkSection = () => {
   }
 
   const setbookmarkApi = async (news_id, status) => {
-    try {
-      const { data } = await bookmarkApi.setBookmark({
-        news_id: news_id,
-        status: status
-      })
-      setData(Data.filter(item => item.news_id !== news_id))
-    } catch (error) {
-      console.log(error)
+    if (typeof news_id == 'number' && status) {
+      try {
+        const { data } = await bookmarkApi.setBookmark({
+          news_id: news_id,
+          status: status
+        })
+        setData(Data.filter(item => item.news_id !== news_id))
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
@@ -95,7 +95,7 @@ const BookmarkSection = () => {
                     <div className='bs_image_card'>
                       <Link
                         href={{ pathname: `/news/${element.slug}`, query: { language_id: element.language_id } }}
-                        as={`/news/${element.slug}`}
+                        // as={`/news/${element.slug}`}
                       >
                         <img
                           id='bs-card-image'
@@ -119,7 +119,7 @@ const BookmarkSection = () => {
                       </button>
                       <Link
                         href={{ pathname: `/news/${element.slug}`, query: { language_id: element.language_id } }}
-                        as={`/news/${element.slug}`}
+                        // as={`/news/${element.slug}`}
                       >
                         <h5
                           id='bs-card-title'
@@ -141,7 +141,7 @@ const BookmarkSection = () => {
               // Show "No data found" message if no data is available
               <div className='col-12 no_data mt-5'>
                 <div id='bs-no-main'>
-                  <img id='bs-no-image' src={bookmarkIMG.src} alt='bookmark no data found news' />
+                  <img id='bs-no-image' src={bookmarkIMG.src} alt='bookmark no data found news' onError={placeholderImage} />
                   <p id='bs-no-title'>
                     <b>{translate('addbookmark')}</b>
                   </p>

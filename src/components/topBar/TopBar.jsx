@@ -15,13 +15,18 @@ import { FaSquareXTwitter } from "react-icons/fa6";
 
 import { useQuery } from '@tanstack/react-query'
 import Skeleton from 'react-loading-skeleton'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { loadLocation, locationData, settingsData } from 'src/store/reducers/settingsReducer'
 import toast from 'react-hot-toast'
 import { registerFcmTokenApi } from 'src/store/actions/campaign'
-import { isLogin, translate } from 'src/utils'
+import { isLogin, placeholderImage, translate } from 'src/utils'
 import { useRouter } from 'next/router'
 import LanguageDropdown from '../view/Dropdowns/LanguagesDropdown'
+import { checkLocationPermission, checkNotificationPermission, checkPermissionsSelector, isLocationPermissionCheck, isNotificationPermissionCheck } from 'src/store/reducers/CheckPermissionsReducer'
+import { FaMoon } from "react-icons/fa";
+import { MdLightMode } from "react-icons/md";
+import { checkThemeMode, themeSelector } from 'src/store/reducers/CheckThemeReducer'
+import ThemeToggler from '../view/ThemeToggler'
 
 const WeatherCard = () => {
   const currentLanguage = useSelector(selectCurrentLanguage)
@@ -31,6 +36,14 @@ const WeatherCard = () => {
   const storedLatitude = location && location.lat
   const storedLongitude = location && location.long
   const weatherMode = getLocation?.weather_mode
+
+  const checkPermissions = useSelector(checkPermissionsSelector);
+  const checkNotificationPermissionOnce = checkPermissions?.data?.isNotificaitonPermissionCheck;
+  const checkLocationPermissonOnce = checkPermissions?.data?.isLocaitonPermissionCheck;
+
+  const darkThemeMode = useSelector(themeSelector);
+
+  const socialMedias = getLocation?.social_media;
 
   const dispatch = useDispatch()
 
@@ -52,11 +65,12 @@ const WeatherCard = () => {
             const response = await axios.get(
               `https://api.weatherapi.com/v1/forecast.json?key=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}&q=${latitude},${longitude}&days=1&aqi=no&alerts=no&lang=${currentLanguage?.code}`
             )
-
+            dispatch(checkLocationPermission({ data: { isLocationPermission: 'granted' } }))
             resolve(response.data) // Resolve the promise with the fetched data
           })
         } else {
           toast.error('Geolocation not supported')
+          dispatch(checkLocationPermission({ data: { isLocationPermission: 'not supported' } }))
         }
       } catch (error) {
         loadLocation(null, null)
@@ -92,7 +106,7 @@ const WeatherCard = () => {
   const languageChange = async (name, code, id, display_name) => {
     loadLanguageLabels({ code: code })
     setCurrentLanguage(name, code, id, display_name)
-    if (isLogin()) {
+    if (isLogin() && location.fcmtoken) {
 
       await registerFcmTokenApi({
         token: location.fcmtoken,
@@ -112,6 +126,49 @@ const WeatherCard = () => {
       loadLanguageLabels({ code: currentLanguage?.code })
     }
   }, [currentLanguage?.code])
+
+  const registerToken = (tokenId) => {
+    if (tokenId) {
+      registerFcmTokenApi({
+        token: tokenId,
+        latitude: storedLatitude,
+        longitude: storedLongitude,
+        onSuccess: async res => {
+        },
+        onError: async err => {
+          console.log(err);
+        }
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (checkPermissions?.data?.isNotificaitonPermission === 'granted' && isLogin() && checkNotificationPermissionOnce === false) {
+      // console.log('i am 1')
+      registerToken(location.fcmtoken)
+      dispatch(isNotificationPermissionCheck({ data: { isNotificaitonPermissionChecked: true } }))
+    }
+
+  }, [checkPermissions])
+
+  useEffect(() => {
+    if (checkPermissions?.data?.isNotificaitonPermission === 'denied' && isLogin() && checkNotificationPermissionOnce === false) {
+      // console.log('i am 2')
+      registerToken('')
+      dispatch(isNotificationPermissionCheck({ data: { isNotificaitonPermissionChecked: true } }))
+    }
+
+  }, [checkPermissions])
+
+  useEffect(() => {
+    if (checkPermissions?.data?.isLocationPermission === 'granted' && isLogin() && checkLocationPermissonOnce === false) {
+      // console.log('i am 3')
+      registerToken('')
+      dispatch(isLocationPermissionCheck({ data: { isLocaitonPermissionChecked: true } }))
+    }
+
+  }, [checkPermissions])
+
 
   return (
     <div id='rns-weather-card'>
@@ -134,7 +191,7 @@ const WeatherCard = () => {
               ) : (
                 weather && weatherMode === '1' && (
                   <>
-                    <img src={weather && weather?.current?.condition?.icon} alt='weather news' className='weather_icon' />
+                    <img src={weather && weather?.current?.condition?.icon} alt='weather news' className='weather_icon' onError={placeholderImage} />
                     <b className='me-2'>{weather && weather?.current?.temp_c}°C</b>
                     <div className='left-state'>
                       <p className='location-wcard mb-0 '>
@@ -155,82 +212,36 @@ const WeatherCard = () => {
           </div>
           <div className='col-md-6 col-12'>
             <div className='right-weather'>
+
+              <ThemeToggler />
+
               {
-                router.pathname === '/' ? <>
+                router.pathname === '/' && languagesData?.length > 1 ? <>
                   <ul className='language_section'>
                     <li>
-                      {/* <Dropdown>
-                        <Dropdown.Toggle className='language_drop'>
-                          {currentLanguage?.displayName ? currentLanguage?.displayName : currentLanguage?.name}
-                        </Dropdown.Toggle>
-
-                        <Dropdown.Menu style={{ backgroundColor: '#1A2E51' }}>
-                          {languagesData &&
-                            languagesData.map((data, index) => {
-                              return (
-                                <Dropdown.Item
-                                  key={index}
-                                  id='btnLogout'
-                                  onClick={() => languageChange(data.language, data.code, data.id, data.display_name)}
-                                >
-                                  {data.display_name ? data.display_name : data.language}
-                                </Dropdown.Item>
-                              )
-                            })}
-                        </Dropdown.Menu>
-                      </Dropdown> */}
                       <LanguageDropdown currentLanguage={currentLanguage} languagesData={languagesData} languageChange={languageChange} />
                     </li>
                   </ul>
-                  <div className='slash-line'></div>
+                  {socialMedias?.length > 0 && <div className='slash-line'></div>}
                 </>
-                  : <span className='mt-1 fw-bold followUs'>{translate('followus')} :</span>
+                  : socialMedias?.length > 0 && <span className='fw-bold followUs'>{translate('followus')} :</span>
               }
               <div className='social_media_top'>
-                {process.env.NEXT_PUBLIC_FACEBOOK ? (
-                  <a
-                    target='_blank'
-                    id='social_platforms'
-                    className='me-2'
-                    href={process.env.NEXT_PUBLIC_FACEBOOK}
-                    rel='noreferrer'
-                  >
-                    <FaFacebookSquare />
-                  </a>
-                ) : null}
-                {process.env.NEXT_PUBLIC_INSTAGRAM ? (
-                  <a
-                    target='_blank'
-                    id='social_platforms'
-                    className='me-2'
-                    href={process.env.NEXT_PUBLIC_INSTAGRAM}
-                    rel='noreferrer'
-                  >
-                    <FaInstagram />
-                  </a>
-                ) : null}
-                {process.env.NEXT_PUBLIC_LINKEDIN ? (
-                  <a
-                    target='_blank'
-                    id='social_platforms'
-                    className='me-2'
-                    href={process.env.NEXT_PUBLIC_LINKEDIN}
-                    rel='noreferrer'
-                  >
-                    <FaLinkedin />
-                  </a>
-                ) : null}
-                {process.env.NEXT_PUBLIC_TWITTER ? (
-                  <a
-                    target='_blank'
-                    id='social_platforms'
-                    className=''
-                    href={process.env.NEXT_PUBLIC_TWITTER}
-                    rel='noreferrer'
-                  >
-                    <FaSquareXTwitter />
-                  </a>
-                ) : null}
+                {
+                  socialMedias?.length > 0 ?
+                    socialMedias?.map((data) => {
+                      return <a
+                        target='_blank'
+                        id='social_platforms'
+                        className='me-2'
+                        href={data?.link}
+                        rel='noreferrer'
+                        key={data?.id}
+                      >
+                        <img src={data?.image} alt="social-media-icon" className='socialMediaIcons' onError={placeholderImage} />
+                      </a>
+                    }) : null
+                }
               </div>
             </div>
           </div>

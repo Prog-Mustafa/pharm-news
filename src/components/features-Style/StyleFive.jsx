@@ -9,6 +9,7 @@ import { BsFillPlayFill } from 'react-icons/bs'
 import VideoPlayerModal from '../videoplayer/VideoPlayerModal'
 import { useState } from 'react'
 import AdSpaces from '../view/adSpaces/AdSpaces'
+import StyleFiveSkeleton from '../skeletons/StyleFiveSkeleton'
 
 SwiperCore.use([Navigation, Pagination])
 const StyleFive = ({ isLoading, Data }) => {
@@ -112,8 +113,9 @@ const StyleFive = ({ isLoading, Data }) => {
 
   return (
     <>
+
       {/* ad spaces */}
-      {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id && Data.news_type === 'videos' ? (
+      {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id && Data.news_type === 'videos' ? (
         <>
           <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'five'} />
         </>
@@ -212,7 +214,7 @@ const StyleFive = ({ isLoading, Data }) => {
       ) : null}
 
       {/* ad spaces */}
-      {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id && Data.news_type === 'news' ? (
+      {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id && Data.news_type === 'news' ? (
         <>
           <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'five'} />
         </>
@@ -265,7 +267,7 @@ const StyleFive = ({ isLoading, Data }) => {
                           <div id='bns-card' className='card' key={element.id}>
                             <Link id='Link-all'
                               href={{ pathname: `/news/${element.slug}`, query: { language_id: element.language_id } }}
-                              as={`/news/${element.slug}`}
+                              // as={`/news/${element.slug}`}
                             >
                               <img
                                 id='bns-image'
@@ -282,7 +284,7 @@ const StyleFive = ({ isLoading, Data }) => {
                                   {truncateText(element.category_name, 10)}
                                 </div>
                                 <h5 id='bns-card-text' className=''>
-                                {truncateText(element.title, 34)}
+                                  {truncateText(element.title, 34)}
                                 </h5>
                               </div>
                             </Link>
@@ -299,7 +301,7 @@ const StyleFive = ({ isLoading, Data }) => {
       ) : null}
 
       {/* ad spaces */}
-      {Data.ad_spaces && Data.id === Data.ad_spaces.ad_featured_section_id && Data.news_type === 'breaking_news' ? (
+      {Data.ad_spaces && Data.id == Data.ad_spaces.ad_featured_section_id && Data.news_type === 'breaking_news' ? (
         <>
           <AdSpaces ad_url={Data.ad_spaces.ad_url} ad_img={Data.ad_spaces.web_ad_image} style_web={'five'} />
         </>
@@ -352,7 +354,7 @@ const StyleFive = ({ isLoading, Data }) => {
                           <div id='bns-card' className='card' key={element.id}>
                             <Link id='Link-all'
                               href={{ pathname: `/breaking-news/${element.slug}`, query: { language_id: element.language_id } }}
-                              as={`/breaking-news/${element.slug}`}
+                              // as={`/breaking-news/${element.slug}`}
                             >
                               <img
                                 id='bns-image'
@@ -363,7 +365,7 @@ const StyleFive = ({ isLoading, Data }) => {
                               />
                               <div id='bns-card-body' className='card-body ps-0'>
                                 <h5 id='bns-card-text' className=''>
-                                {truncateText(element.title, 34)}
+                                  {truncateText(element.title, 34)}
                                 </h5>
                               </div>
                             </Link>
@@ -378,6 +380,7 @@ const StyleFive = ({ isLoading, Data }) => {
           </div>
         </div>
       ) : null}
+
     </>
   )
 }

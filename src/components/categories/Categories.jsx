@@ -11,10 +11,8 @@ import { NoDataFound, placeholderImage, translate } from '../../utils'
 import { CategoriesApi } from 'src/hooks/categoriesApi'
 import { useQuery } from '@tanstack/react-query'
 import Layout from '../layout/Layout'
-import Card from '../skeletons/Card'
-// import NoDataFound from '../noDataFound/NoDataFound'
-import { categoriesCacheData } from 'src/store/reducers/CatNavReducers'
-import LoadMoreBtn from '../view/adSpaces/loadMoreBtn/LoadMoreBtn'
+import LoadMoreBtn from '../view/loadMoreBtn/LoadMoreBtn'
+import AllCategorySkeleton from '../skeletons/AllCategorySkeleton'
 
 const Categories = () => {
 
@@ -85,14 +83,15 @@ const Categories = () => {
 
   return (
     <Layout>
-      <BreadcrumbNav SecondElement='Categories'  />
+      <BreadcrumbNav SecondElement='Categories' />
       {categoiresOnOff && categoiresOnOff.category_mode === '1' ? (
         <div className='container my-5'>
           {isLoading.loading ? (
             <div className='row'>
-              {[...Array(3)].map((_, index) => (
+              {[...Array(6)].map((_, index) => (
                 <div className='col-md-4 col-12' key={index}>
-                  <Card isLoading={true} />
+                  {/* <Card isLoading={true} /> */}
+                  <AllCategorySkeleton />
                 </div>
               ))}
             </div>

@@ -2,23 +2,20 @@ import axios from 'axios'
 import dynamic from 'next/dynamic'
 import Meta from 'src/components/seo/Meta'
 import { extractJSONFromMarkup } from 'src/utils'
-import { GET_WEB_SEO_PAGES } from 'src/utils/api'
+import { GET_FEATURE_SECTION, GET_WEB_SEO_PAGES } from 'src/utils/api'
 
 const ViewAll = dynamic(() => import('src/components/viewAll/ViewAll'), { ssr: false })
-
 // This is seo api
-const fetchDataFromSeo = async () => {
+const fetchDataFromSeo = async (slugValue, language_id) => {
   try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/${process.env.NEXT_PUBLIC_END_POINT}/${GET_WEB_SEO_PAGES}?type=view_all`
-    )
-    const data = response.data
-    return data
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/${process.env.NEXT_PUBLIC_END_POINT}/${GET_FEATURE_SECTION}?language_id=${language_id}&slug=${slugValue}`);
+    const data = response.data;
+    return data;
   } catch (error) {
-    console.error('Error fetching data:', error)
-    return null
+    console.error('Error fetching data:', error);
+    return null;
   }
-}
+};
 
 const Index = ({ seoData, currentURL }) => {
   let schema = null
@@ -33,7 +30,7 @@ const Index = ({ seoData, currentURL }) => {
         title={seoData?.data && seoData.data.length > 0 && seoData.data[0].meta_title}
         description={seoData?.data && seoData.data.length > 0 && seoData.data[0].meta_description}
         keywords={seoData?.data && seoData.data.length > 0 && seoData.data[0].meta_keyword}
-        ogImage={seoData?.data && seoData.data.length > 0 && seoData.data[0].image}
+        ogImage={seoData?.data && seoData.data.length > 0 && seoData.data[0].og_image}
         pathName={currentURL}
         schema={schema}
       />
@@ -41,7 +38,6 @@ const Index = ({ seoData, currentURL }) => {
     </>
   )
 }
-
 
 let serverSidePropsFunction = null;
 if (process.env.NEXT_PUBLIC_SEO === "true") {
@@ -52,8 +48,9 @@ if (process.env.NEXT_PUBLIC_SEO === "true") {
     // Accessing the slug property
     // const currentURL = req[Symbol.for('NextInternalRequestMeta')].__NEXT_INIT_URL;
     const slugValue = params.slug;
+    const { language_id } = req[Symbol.for('NextInternalRequestMeta')].initQuery;
     const currentURL = process.env.NEXT_PUBLIC_WEB_URL + '/view-all/' + slugValue + '/';
-    const seoData = await fetchDataFromSeo(slugValue);
+    const seoData = await fetchDataFromSeo(slugValue, language_id);
     return {
       props: {
         seoData,

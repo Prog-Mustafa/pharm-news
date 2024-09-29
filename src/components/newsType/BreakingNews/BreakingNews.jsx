@@ -10,7 +10,6 @@ import {
   FacebookShareButton,
   XIcon
 } from 'react-share'
-import RelatedBreakingNews from '../../relatedNews/RelatedBreakingNews'
 import BreadcrumbNav from '../../breadcrumb/BreadcrumbNav'
 import { useSelector } from 'react-redux'
 import { selectCurrentLanguage } from '../../../store/reducers/languageReducer'
@@ -30,6 +29,10 @@ import { settingsData } from 'src/store/reducers/settingsReducer'
 import { getBreakingNewsApi } from 'src/store/actions/campaign'
 import AdSpaces from '../../view/adSpaces/AdSpaces.jsx'
 import toast from 'react-hot-toast'
+import SeoShare from 'src/components/view/SocialMediaShares/SeoShare'
+import WithoutSeoShare from 'src/components/view/SocialMediaShares/WithoutSeoShare'
+import { store } from 'src/store/store'
+import { SetSearchPopUp } from 'src/store/stateSlice/clickActionSlice'
 
 const BreakingNews = () => {
   const [FontSize, setFontSize] = useState(14)
@@ -43,7 +46,7 @@ const BreakingNews = () => {
   const currentUrL = `${process.env.NEXT_PUBLIC_WEB_URL}${router?.asPath}`
 
   const decodedURL = decodeURI(currentUrL)
-
+  const [whatsappImageLoaded, setWhatsappImageLoaded] = useState(false);
 
   const handleCopyUrl = async (e) => {
     e.preventDefault();
@@ -57,7 +60,12 @@ const BreakingNews = () => {
     }
   };
 
-  const BNid = query.slug
+  const breakingNewsSlug = query.slug
+
+  const [newsViewsIncreament, setNewsViewsIncreament] = useState(false)
+
+
+
   let { id: language_id } = getLanguage()
   let user = getUser()
   const currentLanguage = useSelector(selectCurrentLanguage)
@@ -71,7 +79,7 @@ const BreakingNews = () => {
   }, [])
   useEffect(() => {
     getBreakingNewsApi({
-      slug: BNid,
+      slug: breakingNewsSlug,
       language_id: query.language_id ? query.language_id : currentLanguage.id,
       onSuccess: (res) => {
         const data = res.data[0]
@@ -87,34 +95,37 @@ const BreakingNews = () => {
     })
 
   }, [currentLanguage.id])
+
   useEffect(() => {
   }, [DetailsPageData])
 
-  // // api call
-  // const getBreakingNewsIdApi = async () => {
-  //   try {
-  //     const { data } = await AllBreakingNewsApi.getBreakingNews({
-  //       language_id: language_id,
-  //       slug: query.slug
-  //     })
 
-  //     return data.data ?? null
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
+  useEffect(() => {
+    // console.log('newsViewsIncreament =>', newsViewsIncreament)
+  }, [newsViewsIncreament])
+
 
   // api call
   const setBreakingNewsViewApi = async () => {
-    if (!isLogin()) return false;
-    try {
-      const { data } = await AllBreakingNewsApi.setBreakingNewsView({
-        user_id: user,
-        breaking_news_id: BNid
-      })
+    if (isLogin() && DetailsPageData && !newsViewsIncreament) {
 
-      return data.data ?? null
-    } catch (error) {
+      try {
+        const { data } = await AllBreakingNewsApi.setBreakingNewsView({
+          // user_id: user,
+          breaking_news_id: DetailsPageData?.id
+        })
+
+        if (data?.error === false) {
+          setNewsViewsIncreament(true)
+          console.log('data.error =>', data.error)
+        }
+        else {
+          console.log('data.error =>', data.error)
+        }
+
+        return data.data ?? null
+      } catch (error) {
+      }
     }
   }
 
@@ -130,14 +141,9 @@ const BreakingNews = () => {
     }
   }
 
-  // react query
-  // const { isLoadinggg, dataaa, refetch } = useQuery({
-  //   queryKey: ['breakingNewsById', BNid, user, language_id, currentLanguage],
-  //   queryFn: getBreakingNewsIdApi
-  // })
 
   const { } = useQuery({
-    queryKey: ['setBreakingNewsView', BNid, user, currentLanguage],
+    queryKey: ['setBreakingNewsView', DetailsPageData, user, currentLanguage],
     queryFn: setBreakingNewsViewApi
   })
 
@@ -153,6 +159,14 @@ const BreakingNews = () => {
 
   // Calculate read time
   const readTime = calculateReadTime(text)
+
+  const closeSearchPopUp = () => {
+    store.dispatch(SetSearchPopUp(false))
+  }
+
+  useEffect(() => {
+    closeSearchPopUp()
+  }, [breakingNewsSlug])
 
   return (
     <Layout>
@@ -174,20 +188,6 @@ const BreakingNews = () => {
                     {adsdata && adsdata.ad_spaces_top ? (
                       <>
                         <AdSpaces ad_url={adsdata && adsdata.ad_spaces_top.ad_url} ad_img={adsdata && adsdata.ad_spaces_top.web_ad_image} style_web='' />
-                        {/* <div className='ad_spaces mb-5'>
-                          <div
-                            target='_blank'
-                            onClick={() => window.open(adsdata && adsdata.ad_spaces_top.ad_url, '_blank')}
-                          >
-                            {
-                              <img
-                                className='adimage'
-                                src={adsdata && adsdata.ad_spaces_top.web_ad_image}
-                                alt='feature sponsored ads news image'
-                              />
-                            }
-                          </div>
-                        </div> */}
                       </>
                     ) : null}
                     <div className='row'>
@@ -201,7 +201,7 @@ const BreakingNews = () => {
                           <div id='B_NV-Header' className=''>
                             <div id='nv-left-head'>
                               <p id='head-lables' className='eye_icon'>
-                                <AiOutlineEye size={18} id='head-logos' /> {DetailsPageData && DetailsPageData?.total_views}
+                                <AiOutlineEye size={18} id='head-logos' /> {newsViewsIncreament ? DetailsPageData?.total_views + 1 : DetailsPageData?.total_views}
                               </p>
                               <p id='head-lables' className='minute_Read'>
                                 <BiTime size={18} id='head-logos' />
@@ -211,40 +211,19 @@ const BreakingNews = () => {
                               </p>
                             </div>
                             {process.env.NEXT_PUBLIC_SEO === 'true' ? (
-                              <div id='B_NV-right-head'>
-                                <h6 id='B_NV-Share-Label'>{translate('shareLbl')}:</h6>
-                                <FacebookShareButton
-                                  url={decodedURL}
-                                  title={`${DetailsPageData?.title} - ${SettingsData && SettingsData?.web_setting?.web_name}`}
-                                  hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`}
-                                >
-                                  <FacebookIcon size={40} round />
-                                </FacebookShareButton>
-                                <WhatsappShareButton
-                                  url={decodedURL}
-                                  title={`${DetailsPageData?.title} - ${SettingsData && SettingsData?.web_setting?.web_name}`}
-                                  hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`}
-                                >
-                                  <WhatsappIcon size={40} round />
-                                </WhatsappShareButton>
-                                <TwitterShareButton
-                                  url={decodedURL}
-                                  title={`${DetailsPageData?.title} - ${SettingsData && SettingsData?.web_setting?.web_name}`}
-                                  hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`}
-                                >
-                                  <XIcon size={40} round />
-                                </TwitterShareButton>
-                                <button onClick={handleCopyUrl} className='copy_url'>
-                                  <BsLink45Deg size={30} />
-                                </button>
-                              </div>
+
+                              <SeoShare url={decodedURL} title={`${DetailsPageData && DetailsPageData[0]?.title} - ${SettingsData && SettingsData?.web_setting?.web_name}`} hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`} handleCopyUrl={handleCopyUrl} setWhatsappImageLoaded={setWhatsappImageLoaded} />
+
                             ) :
-                              <div id='nv-right-head'>
-                                <h6 id='nv-Share-Label'>{translate('shareLbl')}:</h6>
-                                <button onClick={handleCopyUrl} className='copy_url'>
-                                  <BsLink45Deg size={30} />
-                                </button>
-                              </div>}
+
+                              <WithoutSeoShare url={decodedURL} title={SettingsData && SettingsData?.web_setting?.web_name} hashtag={`${SettingsData && SettingsData?.web_setting?.web_name}`} handleCopyUrl={handleCopyUrl} />
+                              // <div id='nv-right-head'>
+                              //   <h6 id='nv-Share-Label'>{translate('shareLbl')}:</h6>
+                              //   <button onClick={handleCopyUrl} className='copy_url'>
+                              //     <BsLink45Deg size={30} />
+                              //   </button>
+                              // </div>
+                            }
                           </div>
                           <div id='vps-body-left'>
                             <img id='B_NV-image' src={DetailsPageData?.image} alt={DetailsPageData?.title} onError={placeholderImage} />
@@ -288,7 +267,7 @@ const BreakingNews = () => {
                       </div>
                       <div className='col-md-5 col-12'>
                         <div id='B_NV-right-section'>
-                          {DetailsPageData.length > 0 ? <RelatedBreakingNews id={DetailsPageData?.id} /> : null}
+                          {/* {DetailsPageData.length > 0 ? <RelatedBreakingNews id={DetailsPageData?.id} /> : null} */}
                           {/* <TagsSection /> */}
                         </div>
                       </div>
@@ -306,20 +285,6 @@ const BreakingNews = () => {
                     {adsdata && adsdata?.ad_spaces_bottom ? (
                       <>
                         <AdSpaces ad_url={adsdata && adsdata?.ad_spaces_bottom?.ad_url} ad_img={adsdata && adsdata?.ad_spaces_bottom?.web_ad_image} style_web='' />
-                        {/* <div className='ad_spaces my-3'>
-                          <div
-                            target='_blank'
-                            onClick={() => window.open(adsdata && adsdata?.ad_spaces_bottom?.ad_url, '_blank')}
-                          >
-                            {
-                              <img
-                                className='adimage'
-                                src={adsdata && adsdata?.ad_spaces_bottom?.web_ad_image}
-                                alt='feature sponsored ads news image'
-                              />
-                            }
-                          </div>
-                        </div> */}
                       </>
                     ) : null}
                   </div>

@@ -2,10 +2,11 @@ import photo from '../../../public/assets/images/Login.jpg'
 import React, { useState, useEffect } from 'react'
 import Modal from 'react-bootstrap/Modal'
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth'
-import { translate } from '../../utils'
+import { placeholderImage, translate } from '../../utils'
 import { useSelector } from 'react-redux'
 import { settingsData } from '../../store/reducers/settingsReducer'
 import toast from 'react-hot-toast'
+import { themeSelector } from 'src/store/reducers/CheckThemeReducer'
 
 const ForgotPasswordTwo = props => {
   const initialValues = { email: '', password: '' }
@@ -19,6 +20,8 @@ const ForgotPasswordTwo = props => {
   const [isSubmit, setIsSubmit] = useState(false)
 
   const settings = useSelector(settingsData)
+
+  const darkThemeMode = useSelector(themeSelector);
 
   const handleChange = e => {
     const { name, value } = e.target
@@ -86,9 +89,9 @@ const ForgotPasswordTwo = props => {
             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px' }}
             id='login_img2'
           >
-            <img className='ModalImg' id='ModalImg2' src={photo.src} alt='forgot password images news' />
+            <img className='ModalImg' id='ModalImg2' src={photo.src} alt='forgot password images news' onError={placeholderImage}/>
             <div className='logo-img-overlay'>
-              <img id='NewsLogo' src={settings && settings?.web_setting?.web_header_logo} alt='news logo' />
+              <img id='NewsLogo' src={settings && darkThemeMode ? settings?.web_setting?.dark_header_logo : settings?.web_setting?.light_header_logo} onError={placeholderImage} alt='news logo' />
             </div>
           </div>
 
@@ -115,7 +118,6 @@ const ForgotPasswordTwo = props => {
                       value={formValues.email}
                       onChange={handleChange}
                     />
-                    {/* <p className='error-msg'> {formErrors.email}</p> */}
                   </div>
 
                   <div className='py-3'>

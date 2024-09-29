@@ -1,11 +1,11 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import BreadcrumbNav from '../breadcrumb/BreadcrumbNav'
-import { translate } from '../../utils'
+import { placeholderImage, translate } from '../../utils'
 import { Button, Form } from 'react-bootstrap'
 import DatePicker from 'react-datepicker'
 import { AiFillPicture, AiOutlineUpload } from 'react-icons/ai'
-import { SlCalender } from 'react-icons/sl'
+import { MdEditCalendar } from "react-icons/md";
 import { deleteImageApi, getSubcategoryByCategoryApi, setNewsApi } from '../../store/actions/campaign'
 import { selectLanguages } from '../../store/reducers/languageReducer'
 import { useSelector } from 'react-redux'
@@ -18,7 +18,7 @@ import { selectManageNews } from '../../store/reducers/createNewsReducer'
 import VideoPlayerModal from '../videoplayer/VideoPlayerModal'
 import { useRouter } from 'next/navigation'
 import { BsFillPlayFill } from 'react-icons/bs'
-import { IoIosClose } from 'react-icons/io'
+import { IoIosClose, IoIosCloseCircle } from 'react-icons/io'
 import { settingsData } from '../../store/reducers/settingsReducer'
 import managenewsimage from '../../../public/assets/images/manage-news.svg'
 import { getTagApi } from 'src/hooks/tagsApi'
@@ -30,6 +30,7 @@ import { getsubcategorybycategoryApi } from 'src/hooks/subcategoryByCategoryApi'
 import toast from 'react-hot-toast'
 import Layout from '../layout/Layout'
 import { Input } from 'antd'
+import { addDays } from 'date-fns'
 const { TextArea } = Input
 
 const { Option } = Select
@@ -46,45 +47,50 @@ const EditNews = () => {
   const [Video_url, setVideo_url] = useState()
   const languagesData = useSelector(selectLanguages)
   const manageNews = useSelector(selectManageNews)
-  const [url, setUrl] = useState(manageNews.content_value)
+  const [url, setUrl] = useState(manageNews?.content_value)
   const [subCategory, setSubCategory] = useState([])
   const [showsubCategory, setShowsubCategory] = useState(false)
-  const [videoData, setVideoData] = useState(manageNews.content_value)
+  const [videoData, setVideoData] = useState(manageNews?.content_value)
   const [otherUrl, setOtherUrl] = useState(false)
   let { id: language_id } = getLanguage()
   const getLocation = useSelector(settingsData)
   const getLocationData = getLocation?.location_news_mode
   const navigate = useRouter()
 
-  const matchingObject = languagesData.find(obj => obj.id === manageNews.language_id)
+  const matchingObject = languagesData.find(obj => obj.id === manageNews?.language_id)
 
   const [DefaultValue, setDefaultValue] = useState({
-    defualTitle: manageNews.title,
-    defaultMetatitle: manageNews.meta_title,
-    defaultMetaDescription: manageNews.meta_description,
-    defaultMetaKeyword: manageNews.meta_keyword,
-    defaultSlug: manageNews.slug,
-    categorydefault: manageNews.category?.category_name,
-    standardType: manageNews.content_type,
-    contentValue: manageNews.content_value,
-    tagValue: manageNews.tag_name?.split(','),
-    dateValue: manageNews.show_till === '0000-00-00' ? null : new Date(manageNews.show_till),
-    imagedefault: manageNews.image,
-    languageId: manageNews.language_id,
-    categoryID: manageNews.category_id,
-    tagsid: manageNews.tag_id,
-    contentType: manageNews.content_type,
-    multipleImage: manageNews.images,
+    defualTitle: manageNews?.title,
+    defaultMetatitle: manageNews?.meta_title,
+    defaultMetaDescription: manageNews?.meta_description,
+    defaultMetaKeyword: manageNews?.meta_keyword,
+    defaultSlug: manageNews?.slug,
+    categorydefault: manageNews?.category?.category_name,
+    standardType: manageNews?.content_type,
+    contentValue: manageNews?.content_value,
+    tagValue: manageNews?.tag_name ? manageNews?.tag_name?.split(',') : null,
+    dateValue: manageNews?.show_till === '0000-00-00' ? null : new Date(manageNews?.show_till),
+    publishDateValue: manageNews?.published_date === '0000-00-00' ? null : new Date(manageNews?.published_date),
+    imagedefault: manageNews?.image,
+    languageId: manageNews?.language_id,
+    categoryID: manageNews?.category_id,
+    tagsid: manageNews?.tag_id,
+    contentType: manageNews?.content_type,
+    multipleImage: manageNews?.images,
     subcategorydefault: manageNews?.sub_category?.subcategory_name,
-    subcategoryID: manageNews.subcategory_id,
+    subcategoryID: manageNews?.subcategory_id,
     languageName: matchingObject.language,
-    descriptionValue: manageNews.description,
-    defualtLocationId: manageNews.location_id,
-    defualtLocation: manageNews.location.location_name
+    descriptionValue: manageNews?.description,
+    defualtLocationId: manageNews?.location_id,
+    defualtLocation: manageNews?.location?.location_name
   })
 
   const handleDate = date => {
     setDefaultValue({ ...DefaultValue, dateValue: date })
+  }
+
+  const handlePublishDate = date => {
+    setDefaultValue({ ...DefaultValue, publishDateValue: date })
   }
 
   // other multiple image
@@ -158,7 +164,7 @@ const EditNews = () => {
     if (selectedOption) {
       const contentType = selectedOption.name
 
-      if (contentType !== manageNews.content_type) {
+      if (contentType !== manageNews?.content_type) {
         // Set contentValue to an empty string when the contentType changes
         setDefaultValue((DefaultValue.contentValue = ''))
       }
@@ -210,6 +216,20 @@ const EditNews = () => {
     }
   }
 
+
+  const dateConfirmation = () => {
+
+    const showTillDate = DefaultValue.dateValue;
+    const publishDate = DefaultValue.publishDateValue;
+
+    if (publishDate && showTillDate && publishDate > showTillDate) {
+      toast.error(translate('dateConfirmation'));
+      return; // Prevent form submission
+    }
+
+  }
+
+
   // next screen step 2
   const nextStep = e => {
     e.preventDefault()
@@ -219,23 +239,27 @@ const EditNews = () => {
       return
     }
 
-    if (!DefaultValue.defaultMetatitle) {
-      toast.error(translate("metaTitlerequired"))
-      return
-    }
+    // if (!DefaultValue.defaultMetatitle) {
+    //   toast.error(translate("metaTitlerequired"))
+    //   return
+    // }
 
-    if (!DefaultValue.defaultMetaDescription) {
-      toast.error(translate("metaDescriptionrequired"))
-      return
-    }
+    // if (!DefaultValue.defaultMetaDescription) {
+    //   toast.error(translate("metaDescriptionrequired"))
+    //   return
+    // }
 
-    if (!DefaultValue.defaultMetaKeyword) {
-      toast.error(translate("metaKeywordsrequired"))
-      return
-    }
+    // if (!DefaultValue.defaultMetaKeyword) {
+    //   toast.error(translate("metaKeywordsrequired"))
+    //   return
+    // }
 
     if (!DefaultValue.defaultSlug) {
       toast.error(translate("slugrequired"))
+      return
+    }
+    if (!DefaultValue.publishDateValue) {
+      toast.error(translate("publishDateRequired"))
       return
     }
 
@@ -260,8 +284,15 @@ const EditNews = () => {
       }
     }
 
+    dateConfirmation()
+
     setNextStepScreen(true)
   }
+
+  useEffect(() => {
+    dateConfirmation()
+  }, [DefaultValue.dateValue, DefaultValue.publishDateValue])
+
 
   // api call
   const getTag = async () => {
@@ -301,7 +332,7 @@ const EditNews = () => {
   const getsubcategorybycategory = async () => {
     try {
       const { data } = await getsubcategorybycategoryApi.getsubcategorybycategory({
-        category_id: manageNews.category_id,
+        category_id: manageNews?.category_id,
         language_id: language_id
       })
 
@@ -341,20 +372,20 @@ const EditNews = () => {
       setShowCategory(true)
       setDefaultValue({ ...DefaultValue, languageId: matchingObject.id, languageName: matchingObject.language })
     }
-    if (manageNews.content_type === 'standard_post') {
+    if (manageNews?.content_type === 'standard_post') {
       setDefaultValue({ ...DefaultValue, standardType: translate('stdPostLbl'), contentType: 'standard_post' })
       setShowURl(false)
       setVideoUrl(false)
       setUrl(null)
-    } else if (manageNews.content_type === 'video_youtube') {
+    } else if (manageNews?.content_type === 'video_youtube') {
       setDefaultValue({ ...DefaultValue, standardType: translate('videoYoutubeLbl'), contentType: 'video_youtube' })
       setShowURl(true)
       setVideoUrl(false)
-    } else if (manageNews.content_type === 'video_other') {
+    } else if (manageNews?.content_type === 'video_other') {
       setDefaultValue({ ...DefaultValue, standardType: translate('videoOtherUrlLbl'), contentType: 'video_other' })
       setShowURl(true)
       setVideoUrl(false)
-    } else if (manageNews.content_type === 'video_upload') {
+    } else if (manageNews?.content_type === 'video_upload') {
       setDefaultValue({ ...DefaultValue, standardType: translate('videoUploadLbl'), contentType: 'video_upload' })
       setShowURl(false)
       setVideoUrl(true)
@@ -480,9 +511,9 @@ const EditNews = () => {
 
   useEffect(() => {
     // Check if DefaultValue.descriptionValue is empty or contains only whitespace
-    if (!DefaultValue.descriptionValue || DefaultValue.descriptionValue.trim() == '') {
-      toast.error(translate('descriptionrequired'));
-    }
+    // if (!DefaultValue.descriptionValue || DefaultValue.descriptionValue.trim() == '') {
+    //   toast.error(translate('descriptionrequired'));
+    // }
   }, [DefaultValue.descriptionValue]);
 
   // final submit data
@@ -492,10 +523,10 @@ const EditNews = () => {
     // console.log(DefaultValue.descriptionValue.trim(), 'trim')
     // console.log(DefaultValue.descriptionValue, 'not-trim')
 
-    if (!DefaultValue.descriptionValue || DefaultValue.descriptionValue == "<p><br><\/p>") {
-      toast.error(translate('descriptionrequired'))
-      return
-    }
+    // if (!DefaultValue.descriptionValue || DefaultValue.descriptionValue == "<p><br><\/p>") {
+    //   toast.error(translate('descriptionrequired'))
+    //   return
+    // }
 
 
     const slugValue = await slugConverter()
@@ -514,9 +545,16 @@ const EditNews = () => {
       description: DefaultValue.descriptionValue,
       image: DefaultValue.imagedefault,
       ofile: images,
-      show_till: DefaultValue.dateValue.toISOString().split('T')[0],
+      // show_till: DefaultValue.dateValue.toISOString().split('T')[0],
+      show_till: new Date(DefaultValue.dateValue.getTime() - DefaultValue.dateValue.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split('T')[0],
       language_id: DefaultValue.languageId,
       location_id: DefaultValue.defualtLocationId ? DefaultValue.defualtLocationId : null,
+      // published_date: DefaultValue.publishDateValue.toISOString().split('T')[0],
+      published_date: new Date(DefaultValue.publishDateValue.getTime() - DefaultValue.publishDateValue.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split('T')[0],
       onSuccess: response => {
         toast.success(response.message)
         navigate.push('/manage-news')
@@ -557,6 +595,10 @@ const EditNews = () => {
     })
   }
 
+  const handleRemove = (indexToRemove) => {
+    setImages(images.filter((_, index) => index !== indexToRemove));
+  };
+
   // back button
   const Back = () => {
     setNextStepScreen(false)
@@ -564,12 +606,12 @@ const EditNews = () => {
 
   return (
     <Layout>
-      <BreadcrumbNav SecondElement={translate('editNewsLbl')}  />
+      <BreadcrumbNav SecondElement={translate('editNewsLbl')} />
       <div className='create_news py-5 bg-white'>
         <div className='container'>
           <div className='row'>
             <div className='col-md-7 col-12'>
-              <img className='edit-img' src={managenewsimage.src} alt='create news' />
+              <img className='edit-img' src={managenewsimage.src} alt='create news' onError={placeholderImage} />
             </div>
 
             <div className='col-md-5 col-12'>
@@ -782,8 +824,8 @@ const EditNews = () => {
                     ) : null}
                     {videoUrl ? (
                       <div className='input_form mb-2 video_url'>
-                        {manageNews.content_type === 'video_upload' ? (
-                          <div className='preview' onClick={() => handleVideoUrl(manageNews.content_value)}>
+                        {manageNews?.content_type === 'video_upload' ? (
+                          <div className='preview' onClick={() => handleVideoUrl(manageNews?.content_value)}>
                             {translate('previewLbl')}
                             <BsFillPlayFill />
                           </div>
@@ -835,14 +877,26 @@ const EditNews = () => {
                     <div className='show_date mb-2'>
                       <DatePicker
                         dateFormat='yyyy-MM-dd'
+                        selected={DefaultValue.publishDateValue}
+                        placeholderText={translate('publishDate')}
+                        clearButtonTitle
+                        todayButton={'Today'}
+                        minDate={new Date()}
+                        onChange={date => handlePublishDate(date)}
+                      />
+                      <MdEditCalendar className='form-calender' />
+                    </div>
+                    <div className='show_date mb-2'>
+                      <DatePicker
+                        dateFormat='yyyy-MM-dd'
                         selected={DefaultValue.dateValue}
                         placeholderText={translate('showTilledDate')}
                         clearButtonTitle
                         todayButton={'Today'}
-                        minDate={new Date()}
+                        minDate={addDays(new Date(), 1)}
                         onChange={date => handleDate(date)}
                       />
-                      <SlCalender className='form-calender' />
+                      <MdEditCalendar className='form-calender' />
                     </div>
                     <div className='main_image mb-2'>
                       <input
@@ -876,6 +930,7 @@ const EditNews = () => {
                             src={DefaultValue.imagedefault}
                             onClick={() => document.getElementById('file').click()}
                             alt='edit news'
+                            onError={placeholderImage}
                           />
                         </div>
                       )}
@@ -912,12 +967,15 @@ const EditNews = () => {
 
                         {images.map((file, index) => (
                           <SwiperSlide key={index}>
-                            <img src={URL.createObjectURL(file)} alt={`Uploaded ${index}`} />
+                            <div className='otherImgDiv'>
+                              <span onClick={() => handleRemove(index)}><IoIosCloseCircle /> </span>
+                              <img src={URL.createObjectURL(file)} alt={`Uploaded ${index}`} />
+                            </div>
                           </SwiperSlide>
                         ))}
                       </Swiper>
                     </div>
-                    <Button type='submit' className='btn btn-secondary next-btn'>
+                    <Button type='submit' className='btn btn-secondary next-btn commonBtn'>
                       {translate('nxt')}
                     </Button>
                   </div>
@@ -933,12 +991,12 @@ const EditNews = () => {
                   </div>
                   <div className='row'>
                     <div className='col-md-6'>
-                      <Button type='button' className='btn btn-secondary backbtn' onClick={Back}>
+                      <Button type='button' className='btn btn-secondary backbtn commonBtn' onClick={Back}>
                         {translate('back')}
                       </Button>
                     </div>
                     <div className='col-md-6'>
-                      <Button type='submit' className=' btn btn-secondary subbtn'>
+                      <Button type='submit' className=' btn btn-secondary subbtn commonBtn'>
                         {translate('submitBtn')}
                       </Button>
                     </div>
@@ -954,7 +1012,7 @@ const EditNews = () => {
           // backdrop="static"
           keyboard={false}
           url={Video_url}
-          type_url={manageNews.content_type}
+          type_url={manageNews?.content_type}
         // title={Data[0].title}
         />
       </div>

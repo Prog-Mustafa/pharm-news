@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Button from 'react-bootstrap/Button'
 import { getAuth, signOut } from 'firebase/auth'
-import Dropdown from 'react-bootstrap/Dropdown'
 import {
   loadLanguageLabels,
   loadLanguages,
@@ -46,6 +45,7 @@ import { checkNewsDataSelector } from 'src/store/reducers/CheckNewsDataReducer'
 import MorePagesDropDown from '../view/Dropdowns/MorePagesDropDown'
 import { usePathname } from 'next/navigation';
 import ProfileDropDown from '../view/Dropdowns/ProfileDropDown'
+import { themeSelector } from 'src/store/reducers/CheckThemeReducer'
 
 const { confirm } = Modal
 
@@ -71,9 +71,9 @@ const Header = () => {
 
   const settings = useSelector(settingsData)
 
-  const checkNewsData = useSelector(checkNewsDataSelector)
+  const checkNewsData = useSelector(checkNewsDataSelector);
 
-  // console.log(checkNewsData.data, 'header innn')
+  const darkThemeMode = useSelector(themeSelector);
 
   // language change
   const languageChange = (name, code, id) => {
@@ -120,7 +120,7 @@ const Header = () => {
   const logout = async () => {
     confirm({
       title: 'Logout',
-      content: 'Are you sure you want to log out?',
+      content: translate('logoutTxt'),
       centered: true,
       async onOk() {
         try {
@@ -153,6 +153,8 @@ const Header = () => {
     setShow(true)
   }
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const onClickHandler = e => {
     const target = e.currentTarget
     const parentEl = target.parentElement
@@ -174,6 +176,7 @@ const Header = () => {
           slideToggle(child, 1000)
         }
       })
+      setIsMenuOpen(!isMenuOpen);
     }
   }
 
@@ -210,18 +213,18 @@ const Header = () => {
   const deleteAccount = async e => {
     e.preventDefault()
     confirm({
-      title: 'Delete Account',
-      // content: 'Are you sure to do this?',
+      title: translate('deleteAcc'),
       content: (
         <>
-          <p>Are you sure you want to delete your account? This action cannot be undone.By deleting your account, you will lose access to:</p>
-          <li style={{ listStyle: 'disc' }}>Profile information</li>
-          <li style={{ listStyle: 'disc' }}>Settings</li>
-          <li style={{ listStyle: 'disc' }}>And Any associated content</li>
+          <p>{translate('deleteAccWarning')}</p>
+          <li style={{ listStyle: 'disc' }}>{translate('profileInfo')}</li>
+          <li style={{ listStyle: 'disc' }}>{translate('settings')}</li>
+          <li style={{ listStyle: 'disc' }}>{translate('associatedContent')}</li>
         </>
       ),
       centered: true,
-      okText: 'Delete',
+      okText: translate('deleteTxt'),
+      cancelText: translate('cancelBtn'),
       okButtonProps: {
         style: { background: 'red', borderColor: 'red' },
       },
@@ -279,7 +282,7 @@ const Header = () => {
         <div className='navbar_content'>
           <div id='News-logo' className='News-logo'>
             <Link href='/' activeclassname='active' exact='true'>
-              <img id='NewsLogo' src={settings && settings?.web_setting?.web_header_logo} onError={placeholderImage} alt='logo' />
+              <img id='NewsLogo' src={settings && darkThemeMode ? settings?.web_setting?.dark_header_logo : settings?.web_setting?.light_header_logo} onError={placeholderImage} alt='logo' />
             </Link>
           </div>
 
@@ -336,7 +339,7 @@ const Header = () => {
                       id='nav-links'
                       activeclassname='active'
                       exact='true'
-                      className={`headerDropdownItem link-color ${router === '/all-breakingnews' ? 'navLinkActive' : ''}`}
+                      className={`headerDropdownItem link-color ${router === '/all-breaking-news' ? 'navLinkActive' : ''}`}
                       aria-current='page'
                       href='/all-breaking-news'
                     >
@@ -367,59 +370,9 @@ const Header = () => {
 
               <li id='Nav-btns' className='profileDropDownWrapper'>
                 {isLogin() && checkUserData(userData) ? (
-                  // <Dropdown>
-                  //   <Dropdown.Toggle id='btnSignIn' className='me-2'>
-                  //     <img
-                  //       className='profile_photo'
-                  //       src={userData.data && userData.data.profile ? userData.data.profile : profileimg}
-                  //       onError={profileimgError}
-                  //       alt='profile'
-                  //     />
-                  //     {truncateText(userName, 10)}
-                  //   </Dropdown.Toggle>
-
-                  //   <Dropdown.Menu style={{ backgroundColor: '#1A2E51' }}>
-                  //     <Dropdown.Item id='btnLogout'>
-                  //       <Link id='btnBookmark' href='/bookmark'>
-                  //         {translate('bookmark')}
-                  //       </Link>
-                  //     </Dropdown.Item>
-                  //     <Dropdown.Item id='btnLogout'>
-                  //       <Link id='btnBookmark' href='/user-based-categories'>
-                  //         {translate('managePreferences')}
-                  //       </Link>
-                  //     </Dropdown.Item>
-
-                  //     {/* {userData?.data?.role !== 0 ? (
-                  //       <>
-                  //         <Dropdown.Item id='btnLogout'>
-                  //           <Link id='btnBookmark' href='/create-news'>
-                  //             {translate('createNewsLbl')}
-                  //           </Link>
-                  //         </Dropdown.Item>
-
-                  //         <Dropdown.Item id='btnLogout'>
-                  //           <Link id='btnBookmark' href='/manage-news'>
-                  //             {translate('manageNewsLbl')}
-                  //           </Link>
-                  //         </Dropdown.Item>
-                  //       </>
-                  //     ) : null} */}
-                  //     <Dropdown.Item id='btnLogout'>
-                  //       <Link id='btnBookmark' href='/profile-update'>
-                  //         {translate('update-profile')}
-                  //       </Link>
-                  //     </Dropdown.Item>
-                  //     <Dropdown.Item id='btnLogout' onClick={e => deleteAccount(e)}>
-                  //       {translate('deleteAcc')}
-                  //     </Dropdown.Item>
-                  //     <Dropdown.Divider />
-                  //     <Dropdown.Item onClick={logout} id='btnLogout' className=''>
-                  //       {translate('logout')}
-                  //     </Dropdown.Item>
-                  //   </Dropdown.Menu>
-                  // </Dropdown>
-                  <><ProfileDropDown userName={userName} userData={userData} userRole={userRoleStatus} isLogin={isLogin} profileimg={profileimg} deleteAccount={deleteAccount} profileimgError={profileimgError} logout={logout} checkUserData={checkUserData(userData)} /></>
+                  <>
+                    <ProfileDropDown userName={userName} userData={userData} userRole={userRoleStatus} isLogin={isLogin} profileimg={profileimg} deleteAccount={deleteAccount} profileimgError={profileimgError} logout={logout} checkUserData={checkUserData(userData)} />
+                  </>
                 ) : (
                   <Button
                     variant='danger'
@@ -466,6 +419,7 @@ const Header = () => {
                 logout={logout}
                 deleteAccount={deleteAccount}
                 onClickHandler={onClickHandler}
+                isMenuOpen={isMenuOpen}
                 // Data={Data}
                 modalShow={modalShow}
                 setModalShow={setModalShow}

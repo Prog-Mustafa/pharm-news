@@ -10,10 +10,10 @@ import { getLanguage } from 'src/utils/api'
 import { useQuery } from '@tanstack/react-query'
 import Layout from '../layout/Layout'
 import Card from '../skeletons/Card'
-// import NoDataFound from '../noDataFound/NoDataFound'
+
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import LoadMoreBtn from '../view/adSpaces/loadMoreBtn/LoadMoreBtn'
+import LoadMoreBtn from '../view/loadMoreBtn/LoadMoreBtn'
 
 const AllBreakingNews = () => {
   let { id: language_id } = getLanguage()
@@ -90,13 +90,13 @@ const AllBreakingNews = () => {
               ))}
             </div>
           ) : (
-            <div className='row my-5'>
+            <div className='row my-5 commonRowGap'>
               {Data && Data.length > 0 ? (
                 breakingNewsData.map(element => (
                   <div className='col-md-4 col-12' key={element.id}>
                     <Link id='Link-all'
                       href={{ pathname: `/breaking-news/${element.slug}`, query: { language_id: element.language_id } }}
-                      as={`/breaking-news/${element.slug}`}
+                      // as={`/breaking-news/${element.slug}`}
                     >
                       <div id='BNV-card' className='card'>
                         <img

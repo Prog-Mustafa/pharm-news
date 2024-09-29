@@ -18,6 +18,7 @@ import Image from 'next/image'
 
 import playStore from '../../../public/assets/images/playStore.svg'
 import appleStore from '../../../public/assets/images/appleStore.svg'
+import { themeSelector } from 'src/store/reducers/CheckThemeReducer'
 
 const Footer = () => {
 
@@ -28,6 +29,8 @@ const Footer = () => {
   const categoriesData = categories
 
   const checkNewsData = useSelector(checkNewsDataSelector)
+
+  const darkThemeMode = useSelector(themeSelector);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -41,7 +44,7 @@ const Footer = () => {
             <div className='col-lg-3 col-12'>
               <div className='News'>
                 <Link href='/'>
-                  <img id='NewsLogo' src={settings && settings?.web_setting?.web_footer_logo} onError={placeholderImage} alt='footer logo image' />
+                  <img id='NewsLogo' src={darkThemeMode ? settings && settings?.web_setting?.dark_header_logo : settings && settings?.web_setting?.light_footer_logo} onError={placeholderImage} alt='footer logo image' />
                 </Link>
               </div>
               <div className='Lorem-text'>
@@ -50,54 +53,27 @@ const Footer = () => {
                   <br />
                 </p>
               </div>
-              {process.env.NEXT_PUBLIC_FACEBOOK || process.env.NEXT_PUBLIC_INSTAGRAM || process.env.NEXT_PUBLIC_LINKEDIN || process.env.NEXT_PUBLIC_TWITTER ?
+              {settings?.social_media?.length > 0 ?
                 <div className='footerMediasWrapper'>
                   <span className='followUs'>{translate('followus')}</span>
                   <div className='mediaIconsWrapper'>
-                    {process.env.NEXT_PUBLIC_FACEBOOK ? (
-                      <a
-                        target='_blank'
-                        className='btn btn-outline-white'
-                        href={process.env.NEXT_PUBLIC_FACEBOOK}
-                        rel='noreferrer'
-                      >
-                        <FaFacebookSquare />
-                      </a>
-                    ) : null}
-                    {process.env.NEXT_PUBLIC_INSTAGRAM ? (
-                      <a
-                        target='_blank'
-                        className='btn btn-outline-white'
-                        href={process.env.NEXT_PUBLIC_INSTAGRAM}
-                        rel='noreferrer'
-                      >
-                        <FaInstagram />
-                      </a>
-                    ) : null}
-                    {process.env.NEXT_PUBLIC_LINKEDIN ? (
-                      <a
-                        target='_blank'
-                        className='btn btn-outline-white'
-                        href={process.env.NEXT_PUBLIC_LINKEDIN}
-                        rel='noreferrer'
-                      >
-                        <FaLinkedin />
-                      </a>
-                    ) : null}
-                    {process.env.NEXT_PUBLIC_TWITTER ? (
-                      <a
-                        target='_blank'
-                        className='btn btn-outline-white'
-                        href={process.env.NEXT_PUBLIC_TWITTER}
-                        rel='noreferrer'
-                      >
-                        <FaSquareXTwitter />
-                      </a>
-                    ) : null}
+                    {
+                      settings?.social_media?.map((data) => {
+                        return <a
+                          target='_blank'
+                          className='btn btn-outline-white'
+                          href={data?.link}
+                          rel='noreferrer'
+                          key={data?.id}
+                        >
+                          <img src={data?.image} alt="social-media-icon" className='socialMediaIcon' onError={placeholderImage} />
+                        </a>
+
+                      })
+                    }
                   </div>
                 </div>
                 : null}
-
             </div>
 
             <div className='col-lg-3 col-12 navigationWrapper'>
@@ -209,10 +185,8 @@ const Footer = () => {
                 <div className='col-lg-3 col-12'>
                   <p id='footer-nav'>{translate('downloadapp')}</p>
                   <ul className='useL contactInfo'>
-                    <li className='nav-item'>
-                      <a>
-                        {translate('magicofapp')}
-                      </a>
+                    <li className='nav-item magicofapp'>
+                      {translate('magicofapp')}
                     </li>
 
                     <div className='appWrapper'>
@@ -244,8 +218,8 @@ const Footer = () => {
               </p>
             </div>
             <div className='ms-2'>
-              <Link href='/terms-condition'> Terms & Condition |</Link>
-              <Link href='privacy-policy'> Privacy Policy</Link>
+              <Link href='/policy-page/terms-condition'> {translate('termsandcondition')} |</Link>
+              <Link href='/policy-page/privacy-policy'> {translate('priPolicy')} </Link>
             </div>
           </div>
         </div>

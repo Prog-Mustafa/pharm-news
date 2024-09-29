@@ -3,11 +3,12 @@ import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import React, { useState } from 'react'
 import Modal from 'react-bootstrap/Modal'
-import { translate } from '../../utils'
+import { placeholderImage, translate } from '../../utils'
 import { useSelector } from 'react-redux'
 import { settingsData } from '../../store/reducers/settingsReducer'
 import dynamic from 'next/dynamic'
 import toast from 'react-hot-toast'
+import { themeSelector } from 'src/store/reducers/CheckThemeReducer'
 const OTPModalNoSSR = dynamic(() => import('./OTPModal'), { ssr: false })
 const PhoneLoginTwo = props => {
   const [PhoneOTPModalShow, setPhoneOTPModalShow] = React.useState(false)
@@ -24,6 +25,8 @@ const PhoneLoginTwo = props => {
   )
 
   const settings = useSelector(settingsData)
+
+  const darkThemeMode = useSelector(themeSelector);
 
   // Load the libphonenumber library
   const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance()
@@ -61,9 +64,10 @@ const PhoneLoginTwo = props => {
       >
         <div className='ModalWrapper44' id='ModalWrapper44'>
           <div style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px' }} id='login_img4'>
-            <img className='ModalImg4' src={photo.src} alt='mobile-login' />
+            <img className='ModalImg4' src={photo.src} alt='mobile-login' onError={placeholderImage} />
             <div className='logo-img-overlay'>
-              <img src={settings && settings?.web_setting?.web_header_logo} alt='logo' id='logo4' />
+              <img src={settings && darkThemeMode ? settings?.web_setting?.dark_header_logo : settings?.web_setting?.light_header_logo} alt='logo' id='logo4'
+                onError={placeholderImage} />
             </div>
           </div>
 

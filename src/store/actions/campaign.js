@@ -19,7 +19,8 @@ import {
   setQuestionResult,
   getQuestionResult,
   getBreakingNews,
-  getPages
+  getPages,
+  getPolicyPages
 } from '../../utils/api'
 import { store } from '../store'
 import { apiCallBegan } from './apiActions'
@@ -170,6 +171,7 @@ export const setNewsApi = async ({
   show_till = '',
   language_id = '',
   location_id = '',
+  published_date,
   onSuccess = () => { },
   onError = () => { },
   onStart = () => { }
@@ -193,7 +195,8 @@ export const setNewsApi = async ({
         ofile,
         show_till,
         language_id,
-        location_id
+        location_id,
+        published_date
       ),
       displayToast: false,
       onStart,
@@ -335,30 +338,6 @@ export const getuserbyidApi = ({
   )
 }
 
-
-// // GET PRODUCTS
-export const GetCommentsApi = ({
-  news_id = '',
-  offset = '',
-  limit = '',
-  onSuccess = () => { },
-  onError = () => { },
-  onStart = () => { } }) => {
-  store.dispatch(
-    apiCallBegan({
-      ...getComments(
-        news_id,
-        offset,
-        limit),
-      displayToast: false,
-      onStart,
-      onSuccess,
-      onError,
-    })
-  );
-};
-
-
 // 19. 
 export const setQuestionResultApi = ({
   language_id = '',
@@ -378,6 +357,7 @@ export const setQuestionResultApi = ({
     })
   )
 }
+
 export const getQuestionResultApi = ({
   language_id,
   question_id,
@@ -397,6 +377,7 @@ export const getQuestionResultApi = ({
     })
   )
 }
+
 export const getBreakingNewsApi = ({
   language_id = "",
   slug = "",
@@ -407,6 +388,23 @@ export const getBreakingNewsApi = ({
   store.dispatch(
     apiCallBegan({
       ...getBreakingNews(language_id, slug),
+      displayToast: false,
+      onStart,
+      onSuccess,
+      onError
+    })
+  )
+}
+
+export const getPolicyPagesApi = ({
+  language_id = "",
+  onSuccess = () => { },
+  onError = () => { },
+  onStart = () => { }
+}) => {
+  store.dispatch(
+    apiCallBegan({
+      ...getPolicyPages(language_id),
       displayToast: false,
       onStart,
       onSuccess,

@@ -15,8 +15,8 @@ import Layout from '../layout/Layout'
 import Card from '../skeletons/Card'
 import { locationData } from 'src/store/reducers/settingsReducer'
 import { getFeatureSectionApi } from 'src/hooks/getFeatureSectionApi'
-import LoadMoreBtn from '../view/adSpaces/loadMoreBtn/LoadMoreBtn'
-// import NoDataFound from '../noDataFound/NoDataFound'
+import LoadMoreBtn from '../view/loadMoreBtn/LoadMoreBtn'
+
 
 const ViewAll = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -29,10 +29,6 @@ const ViewAll = () => {
   const storedLongitude = location && location.long
   let user = getUser()
   let { id: language_id } = getLanguage()
-  // handle page change
-  const handlePageChange = ({ selected }) => {
-    setCurrentPage(selected)
-  }
 
   const currentLanguage = useSelector(selectCurrentLanguage)
 
@@ -64,7 +60,7 @@ const ViewAll = () => {
         longitude: storedLongitude
       })
       setTotalData(data.data[0]?.news ? data.data[0].news_total : data.data[0]?.breaking_news_total)
-      console.log(data.data[0].news_total, "totlaNewsss")
+      // console.log(data.data[0].news_total, "totlaNewsss")
       setIsLoading({ loading: false })
       setIsLoading({ loadMoreLoading: false })
       return data.data
@@ -117,14 +113,14 @@ const ViewAll = () => {
                   ))}
                 </div>
               ) : (
-                <div className='row'>
+                <div className='row commonRowGap'>
                   {viewAllData && viewAllData ? (
                     viewAllData && viewAllData.map(element => (
                       <div className='col-md-4 col-12' key={element.id}>
                         <Link
                           id='Link-all'
                           href={{ pathname: `/news/${element.slug}`, query: { language_id: element.language_id } }}
-                          as={`/news/${element.slug}`}
+                          // as={`/news/${element.slug}`}
                         >
                           <div id='BNV-card' className='card'>
                             <img
@@ -192,7 +188,7 @@ const ViewAll = () => {
                         <Link
                           id='Link-all'
                           href={{ pathname: `/breaking-news/${element.slug}`, query: { language_id: element.language_id } }}
-                          as={`/breaking-news/${element.slug}`}
+                          // as={`/breaking-news/${element.slug}`}
                         >
                           <div id='BNV-card' className='card'>
                             <img
@@ -200,6 +196,7 @@ const ViewAll = () => {
                               src={element.image ? element.image : no_image}
                               className='card-img'
                               alt={element.title}
+                              onError={placeholderImage}
                             />
                             <div id='BNV-card-body' className='card-body'>
                               {/* <button id='BNV-btnCatagory' className='btn btn-sm' type="button" >{element.category_name}</button> */}
