@@ -1,12 +1,16 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
-    RewriteRule ^breaking-news/([^/]+)$ breaking-news/[slug].html [L]
-    RewriteRule ^categories-news/([^/]+)$ categories-news/[slug].html [L]
-    RewriteRule ^tag/([^/]+)$ tag/[slug].html [L]
-    RewriteRule ^news/([^/]+)$ news/[slug].html [L]
-    RewriteRule ^video-news-view/([^/]+)$ video-news-view/[slug].html [L]
-    RewriteRule ^view-all/([^/]+)$ view-all/[slug].html [L]
+
+    # استخدام القيم المتغيرة بدلاً من [slug]
+    RewriteRule ^breaking-news/([^/]+)$ breaking-news/$1.html [L]
+    RewriteRule ^categories-news/([^/]+)$ categories-news/$1.html [L]
+    RewriteRule ^tag/([^/]+)$ tag/$1.html [L]
+    RewriteRule ^news/([^/]+)$ news/$1.html [L]
+    RewriteRule ^video-news-view/([^/]+)$ video-news-view/$1.html [L]
+    RewriteRule ^view-all/([^/]+)$ view-all/$1.html [L]
+
+    # الروابط الثابتة
     RewriteRule ^all-breaking-news$ /all-breaking-news.html [L]
     RewriteRule ^all-categories$ /all-categories.html [L]
     RewriteRule ^bookmark$ /bookmark.html [L]
@@ -24,9 +28,9 @@
     RewriteRule ^policy-pages/privacy-policy$ /policy-pages/privacy-policy.html [L]
     RewriteRule ^policy-pages/terms-condition$ /policy-pages/terms-condition.html [L]
     RewriteRule ^rss$ /rss.html [L]
+
+    # توجيه الروابط غير الموجودة إلى صفحة 404
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ /404.html [L]
 </IfModule>
-
-    
